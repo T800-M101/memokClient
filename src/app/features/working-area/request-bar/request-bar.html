@@ -1,0 +1,43 @@
+<div class="request-bar">
+  <!-- Method Selector -->
+  <div class="method-selector">
+    <div class="method-btn" [class.active]="method === 'GET'" (click)="onMethodChange('GET')">
+      <span>GET</span>
+    </div>
+    <div class="method-btn" [class.active]="method === 'POST'" (click)="onMethodChange('POST')">
+      <span>POST</span>
+    </div>
+    <div class="method-btn" [class.active]="method === 'PUT'" (click)="onMethodChange('PUT')">
+      <span>PUT</span>
+    </div>
+    <div class="method-btn" [class.active]="method === 'DELETE'" (click)="onMethodChange('DELETE')">
+      <span>DELETE</span>
+    </div>
+    <div class="method-btn" [class.active]="method === 'PATCH'" (click)="onMethodChange('PATCH')">
+      <span>PATCH</span>
+    </div>
+  </div>
+
+  <!-- URL Input -->
+  <div class="url-container">
+    <input
+      type="text"
+      class="url-input"
+      placeholder="https://api.example.com/users"
+      [ngModel]="url"
+      (ngModelChange)="onUrlChange($event)"
+      (keyup.enter)="sendRequest()" />
+  </div>
+
+  <!-- Copy cURL Button -->
+  <button class="copy-curl-btn" (click)="copyAsCurl()" [class.copied]="isCopied">
+    <i class="fas fa-terminal"></i>
+    <span>{{ isCopied ? 'Copied!' : 'cURL' }}</span>
+  </button>
+
+  <!-- Send Button -->
+  <button class="send-btn" (click)="sendRequest()" [disabled]="!url">
+    <i class="fas fa-paper-plane"></i>
+    <span>Send</span>
+  </button>
+</div>

@@ -1,0 +1,481 @@
+/* ==========================================================================
+   CONFIG TABS COMPONENT
+   ========================================================================== */
+:host {
+  display: block;
+  width: 100%;
+}
+
+.config-tabs {
+  width: 100%;
+  background: var(--bg-card, #ffffff);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   TAB HEADERS
+   ========================================================================== */
+.tab-headers {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem 0 1rem;
+  background: var(--bg-soft, #f5f5f5);
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+/* Left side - Tab buttons */
+.tab-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-radius: 10px 10px 0 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &:hover {
+    color: var(--text-main, #2c3e50);
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  &.active {
+    color: var(--primary-color, #00bcd4);
+    background: var(--bg-card, #ffffff);
+    border-bottom: 2px solid var(--primary-color, #00bcd4);
+  }
+}
+
+/* Right side - Collapse button */
+.collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    background: rgba(0, 188, 212, 0.1);
+    color: var(--primary-color, #00bcd4);
+  }
+}
+
+/* ==========================================================================
+   COLLAPSIBLE CONTENT
+   ========================================================================== */
+.tabs-container {
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  max-height: 2000px;
+  opacity: 1;
+  overflow: hidden;
+}
+
+.tabs-container.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+}
+
+.tab-content {
+  padding: 1.25rem;
+}
+
+/* ==========================================================================
+   TABLE HEADER & ADD BUTTON
+   ========================================================================== */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h6 {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted, #7f8c8d);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  background: linear-gradient(135deg, var(--primary-color, #00bcd4), var(--primary-hover, #0097a7));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 0.7rem;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+  }
+}
+
+/* ==========================================================================
+   PARAMS & HEADERS TABLE
+   ========================================================================== */
+.table-container {
+  border: 1px solid var(--border-soft, #eeeeee);
+  border-radius: 12px;
+  overflow: auto;
+}
+
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+
+  th,
+  td {
+    padding: 0.7rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft, #eeeeee);
+  }
+
+  th {
+    background: var(--bg-soft, #f5f5f5);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted, #7f8c8d);
+    text-transform: uppercase;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-input, #d9d9d9);
+    border-radius: 8px;
+    background: var(--bg-app, #fafafa);
+    color: var(--text-main, #2c3e50);
+    font-size: 0.8rem;
+    transition: all 0.15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color, #00bcd4);
+      box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+    }
+  }
+
+  .action-col {
+    width: 50px;
+  }
+
+  .action-cell {
+    text-align: center;
+  }
+}
+
+/* Remove button */
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+  }
+}
+
+/* ==========================================================================
+   EMPTY STATE
+   ========================================================================== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  text-align: center;
+  color: var(--text-muted, #7f8c8d);
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.5;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+.add-empty-btn {
+  padding: 0.4rem 1.2rem;
+  background: transparent;
+  border: 1px dashed var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  color: var(--primary-color, #00bcd4);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 188, 212, 0.05);
+    border-color: var(--primary-color);
+  }
+}
+
+/* ==========================================================================
+   AUTHORIZATION TAB
+   ========================================================================== */
+.auth-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-soft, #f5f5f5);
+  border-radius: 16px;
+  border: 1px solid var(--border-soft, #eeeeee);
+  overflow: hidden;
+}
+
+.auth-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(0, 188, 212, 0.05), transparent);
+  border-bottom: 1px solid var(--border-soft, #eeeeee);
+
+  i {
+    font-size: 1rem;
+    color: var(--primary-color, #00bcd4);
+  }
+
+  span {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-main, #2c3e50);
+  }
+}
+
+.auth-body {
+  padding: 1.25rem;
+}
+
+/* Auth Type Selector */
+.auth-type-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  background: var(--bg-card, #ffffff);
+  border-radius: 12px;
+  padding: 0.25rem;
+  border: 1px solid var(--border-soft, #eeeeee);
+}
+
+.auth-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.75rem;
+  color: var(--text-muted, #7f8c8d);
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &:hover {
+    background: rgba(0, 188, 212, 0.05);
+  }
+
+  &.active {
+    background: var(--primary-color, #00bcd4);
+    color: white;
+  }
+}
+
+/* Bearer Token Section */
+.token-section {
+  margin-top: 0.5rem;
+}
+
+.token-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted, #7f8c8d);
+  margin-bottom: 0.5rem;
+}
+
+.token-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.token-input {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-input, #d9d9d9);
+  border-radius: 10px;
+  color: var(--text-main, #2c3e50);
+  font-family: monospace;
+  font-size: 0.75rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color, #00bcd4);
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+  }
+}
+
+.toggle-visibility {
+  padding: 0 0.75rem;
+  background: var(--bg-soft, #f5f5f5);
+  border: 1px solid var(--border-input, #d9d9d9);
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text-muted, #7f8c8d);
+
+  &:hover {
+    background: rgba(0, 188, 212, 0.05);
+    color: var(--primary-color);
+  }
+}
+
+.token-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  color: var(--text-muted, #7f8c8d);
+
+  i {
+    font-size: 0.6rem;
+  }
+}
+
+/* Basic Auth Section */
+.basic-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.basic-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted, #7f8c8d);
+  }
+}
+
+.basic-input {
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-input, #d9d9d9);
+  border-radius: 10px;
+  color: var(--text-main, #2c3e50);
+  font-size: 0.75rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color, #00bcd4);
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+  }
+}
+
+/* ==========================================================================
+   BODY TAB
+   ========================================================================== */
+.body-editor {
+  width: 100%;
+}
+
+.body-textarea {
+  width: 100%;
+  padding: 1rem;
+  background: var(--bg-soft, #f5f5f5);
+  border: 1px solid var(--border-input, #d9d9d9);
+  border-radius: 12px;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-main, #2c3e50);
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color, #00bcd4);
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+  }
+
+  &::placeholder {
+    color: var(--text-placeholder, #999999);
+  }
+}

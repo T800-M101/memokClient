@@ -1,0 +1,109 @@
+<div class="response-section">
+  <!-- Header -->
+  <div class="response-header">
+    <div class="response-meta">
+      @if (isLoading()) {
+        <div class="meta-item">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Sending request...</span>
+        </div>
+      } @else if (error(); as err) {
+        <div class="meta-item error">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>{{ err }}</span>
+        </div>
+      } @else if (response(); as resp) {
+        <div class="meta-item status" [class.success]="resp.status >= 200 && resp.status < 300">
+          <i [class]="'fas ' + getStatusIcon()"></i>
+          <span>{{ resp.status }} {{ resp.statusText }}</span>
+        </div>
+        <div class="meta-item">
+          <i class="fas fa-stopwatch"></i>
+          <span>{{ resp.duration }}</span>
+        </div>
+        <div class="meta-item">
+          <i class="fas fa-weight-hanging"></i>
+          <span>{{ getBodySize() }}</span>
+        </div>
+        <div class="meta-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span>{{ resp.timestamp | date:'HH:mm:ss' }}</span>
+        </div>
+      } @else {
+        <div class="meta-item">
+          <i class="fas fa-circle"></i>
+          <span>Ready</span>
+        </div>
+      }
+    </div>
+
+    <div class="response-actions">
+      @if (response(); as resp) {
+        <button class="action-btn copy-btn" (click)="copyResponse()" title="Copy response">
+          <i class="fas fa-copy"></i>
+          <span>Copy</span>
+        </button>
+        <button class="action-btn save-btn" (click)="saveResponse()" title="Save response">
+          <i class="fas fa-download"></i>
+          <span>Save</span>
+        </button>
+        <button class="action-btn clear-btn" (click)="clearResponse()" title="Clear response">
+          <i class="fas fa-trash-alt"></i>
+          <span>Clear</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="response-body">
+    @if (isLoading()) {
+      <div class="state-container loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    } @else if (error(); as err) {
+      <div class="state-container error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h4>Request Failed</h4>
+        <p>{{ err }}</p>
+      </div>
+    } @else if (response(); as resp) {
+      <div class="response-content">
+        <!-- Headers Section (collapsible) -->
+        <div class="headers-section">
+          <div class="headers-header" (click)="showHeaders = !showHeaders">
+            <i class="fas fa-chevron-right" [class.rotated]="showHeaders"></i>
+            <span>Response Headers</span>
+            <span class="headers-count">{{ getHeadersCount(resp.headers) }}</span>
+          </div>
+          @if (showHeaders) {
+            <div class="headers-body">
+              @for (header of resp.headers | keyvalue; track header.key) {
+                <div class="header-row">
+                  <span class="header-key">{{ header.key }}</span>
+                  <span class="header-value">{{ header.value }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Body Section -->
+        <div class="body-section">
+          <div class="body-header">
+            <span>Response Body</span>
+          </div>
+          <div class="body-content">
+            <pre>{{ resp.body | json }}</pre>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="state-container empty">
+        <i class="fas fa-code"></i>
+        <p>No response yet. Click "Send" to execute a request.</p>
+      </div>
+    }
+  </div>
+</div>

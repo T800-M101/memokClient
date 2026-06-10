@@ -1,0 +1,392 @@
+/* ==========================================================================
+   RESPONSE SECTION COMPONENT
+   ========================================================================== */
+:host {
+  display: block;
+  width: 100%;
+}
+
+.response-section {
+  background: var(--bg-card, #ffffff);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   RESPONSE HEADER
+   ========================================================================== */
+.response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-soft, #f5f5f5);
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.response-meta {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted, #7f8c8d);
+
+  i {
+    font-size: 0.7rem;
+  }
+
+  &.status {
+    font-weight: 600;
+
+    &.success {
+      color: #4caf50;
+    }
+
+    &.error {
+      color: #f44336;
+    }
+  }
+
+  &.error {
+    color: #f44336;
+  }
+}
+
+/* ==========================================================================
+   RESPONSE ACTIONS
+   ========================================================================== */
+.response-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border-input, #d9d9d9);
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.7rem;
+  }
+
+  &:hover {
+    background: var(--bg-soft, #f5f5f5);
+    color: var(--primary-color, #00bcd4);
+    border-color: var(--primary-color, #00bcd4);
+  }
+
+  &.copy-btn.copied {
+    background: #4caf50;
+    color: white;
+    border-color: #4caf50;
+  }
+
+  &.clear-btn:hover {
+    color: #f44336;
+    border-color: #f44336;
+  }
+}
+
+/* ==========================================================================
+   RESPONSE BODY
+   ========================================================================== */
+.response-body {
+  padding: 1.25rem;
+  background: var(--bg-card, #ffffff);
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   STATE CONTAINERS (Loading, Error, Empty)
+   ========================================================================== */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-muted, #7f8c8d);
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8rem;
+  }
+
+  &.loading i {
+    color: var(--primary-color, #00bcd4);
+    opacity: 1;
+  }
+
+  &.error i {
+    color: #f44336;
+    opacity: 1;
+  }
+}
+
+/* Spinner animation */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-soft, #eeeeee);
+  border-top-color: var(--primary-color, #00bcd4);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   RESPONSE CONTENT
+   ========================================================================== */
+.response-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Headers Section */
+.headers-section {
+  background: var(--bg-soft, #f5f5f5);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.headers-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+
+  i:first-child {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+    color: var(--text-muted, #7f8c8d);
+
+    &.rotated {
+      transform: rotate(90deg);
+    }
+  }
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main, #2c3e50);
+  }
+
+  .headers-count {
+    margin-left: auto;
+    font-size: 0.65rem;
+    background: var(--bg-card, #ffffff);
+    padding: 0.125rem 0.375rem;
+    border-radius: 10px;
+    color: var(--text-muted, #7f8c8d);
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+}
+
+.headers-body {
+  padding: 0.5rem 1rem 1rem 2rem;
+  border-top: 1px solid var(--border-soft, #eeeeee);
+}
+
+.header-row {
+  display: flex;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  font-size: 0.7rem;
+  border-bottom: 1px solid var(--border-soft, #eeeeee);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.header-key {
+  min-width: 150px;
+  font-weight: 600;
+  color: var(--primary-color, #00bcd4);
+  word-break: break-all;
+}
+
+.header-value {
+  flex: 1;
+  color: var(--text-muted, #7f8c8d);
+  word-break: break-all;
+  font-family: monospace;
+}
+
+/* Body Section */
+.body-section {
+  background: var(--bg-soft, #f5f5f5);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.body-header {
+  padding: 0.6rem 1rem;
+  background: var(--bg-soft, #f5f5f5);
+  border-bottom: 1px solid var(--border-soft, #eeeeee);
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main, #2c3e50);
+  }
+}
+
+.body-content {
+  padding: 1rem;
+  overflow-x: auto;
+
+  pre {
+    margin: 0;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    color: var(--text-main, #2c3e50);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: transparent;
+  }
+}
+
+/* ==========================================================================
+   SCROLLBAR
+   ========================================================================== */
+.response-body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.response-body::-webkit-scrollbar-track {
+  background: var(--border-soft, #eeeeee);
+  border-radius: 3px;
+}
+
+.response-body::-webkit-scrollbar-thumb {
+  background: var(--border-color, #e0e0e0);
+  border-radius: 3px;
+
+  &:hover {
+    background: var(--primary-color, #00bcd4);
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .response-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .response-meta {
+    gap: 0.75rem;
+  }
+
+  .response-actions {
+    justify-content: flex-end;
+  }
+
+  .action-btn span {
+    display: none;
+  }
+
+  .action-btn {
+    padding: 0.35rem 0.6rem;
+  }
+
+  .header-key {
+    min-width: 100px;
+  }
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT (opcional)
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  .response-section {
+    background: var(--bg-sidebar, #1e1e2f);
+    border-color: var(--border-sidebar, #2a2a3d);
+  }
+
+  .response-header {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+  }
+
+  .headers-section,
+  .body-section {
+    background: var(--bg-hover, #2a2a3d);
+  }
+
+  .headers-header,
+  .body-header {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+  }
+
+  .headers-header span,
+  .body-header span {
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  .header-row {
+    border-color: var(--border-sidebar, #2a2a3d);
+  }
+
+  .header-value {
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  .body-content pre {
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  .state-container {
+    color: var(--text-sidebar, #e0e0e0);
+  }
+}

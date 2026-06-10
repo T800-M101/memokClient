@@ -8,6 +8,13 @@
   height: 100%;
 }
 
+.request-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; 
+  height: 100%;
+}
+
 .working-area {
   flex: 1;
   overflow: hidden;
