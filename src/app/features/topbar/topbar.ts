@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { OverlayMenuService } from '../../core/overlay-menu.service';
+import { OverlayMenuService } from '../../core/services/overlay-menu-service/overlay-menu.service';
 
 @Component({
   selector: 'app-topbar',

@@ -1,5 +1,11 @@
 <!-- Overlay Menu (mismo tamaño que sidebar) -->
-<div class="overlay-menu" [class.open]="isMenuOpen" [class.closing]="isClosing">
+<div class="overlay-menu"
+     [class.open]="isMenuOpen"
+     [class.closing]="isClosing"
+     [style.width.px]="menuWidth()">
+     
+     <!-- Resize Handle -->
+  <div class="resize-handle" (mousedown)="startResize($event)"></div>
 
   <div class="overlay-menu-header">
     <button class="close-menu-btn" (click)="closeMenu()">
@@ -41,7 +47,75 @@
 
     <li>
       <i class="fas fa-globe"></i>
-      <span>Environments</span>
+      <span (click)="toggleEnvironmentsDrawer()">Environments</span>
     </li>
+    <div class="drawer drawer-wide" [class.open]="isEnvironmentsDrawerOpen()" [class.closing]="isEnvironmentsDrawerClosing()">
+        <div class="drawer-content">
+          <div class="drawer-header">
+            <h4>Environment Variables</h4>
+            <button class="drawer-close" (click)="closeEnvironmentsDrawer()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="drawer-body">
+            <!-- Environment Name Input -->
+            <div class="env-name-field">
+              <input
+                type="text"
+                [(ngModel)]="environmentName"
+                placeholder="Environment name (e.g., Development, Production)"
+                class="drawer-input env-name-input" />
+            </div>
+
+            <!-- Variables Table -->
+            <div class="variables-table-container">
+              <table class="variables-table">
+                <thead>
+                  <tr>
+                    <th>Variable</th>
+                    <th>Value</th>
+                    <th class="action-col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (variable of variables(); track $index) {
+                    <tr>
+                      <td>
+                        <input
+                          [(ngModel)]="variable.key"
+                          placeholder="protocol"
+                          class="table-input" />
+                      </td>
+                      <td>
+                        <input
+                          [(ngModel)]="variable.value"
+                          placeholder="https"
+                          class="table-input" />
+                      </td>
+                      <td class="action-cell">
+                        <button class="remove-variable-btn" (click)="removeVariable($index)">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Add Variable Button -->
+            <button class="add-variable-btn" (click)="addVariable()">
+              <i class="fas fa-plus"></i>
+              Add variable
+            </button>
+          </div>
+
+          <div class="drawer-footer">
+            <button class="drawer-btn cancel" (click)="closeEnvironmentsDrawer()">Cancel</button>
+            <button class="drawer-btn save" (click)="saveEnvironments()">Save</button>
+          </div>
+        </div>
+      </div>
   </ul>
 </div>
