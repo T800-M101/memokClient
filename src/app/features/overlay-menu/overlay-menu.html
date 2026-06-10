@@ -1,0 +1,23 @@
+<!-- Overlay Menu (mismo tamaño que sidebar) -->
+   <div class="overlay-menu"
+     [class.open]="isMenuOpen"
+     [class.closing]="isClosing">
+
+  <div class="overlay-menu-header">
+    <button class="close-menu-btn" (click)="closeMenu()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <ul class="overlay-nav-menu">
+    <li (click)="importCurl()">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <span>Import cURL</span>
+    </li>
+
+    <li (click)="closeMenu()">
+      <i class="fas fa-globe"></i>
+      <span>Environments</span>
+    </li>
+  </ul>
+</div>

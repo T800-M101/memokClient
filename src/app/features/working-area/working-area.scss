@@ -1,0 +1,47 @@
+/* ============================================
+   WORKING AREA COMPONENT
+   ============================================ */
+:host {
+  display: block;
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+}
+
+.working-area {
+  flex: 1;
+  overflow: hidden;
+  transition: all var(--transition-normal, 0.25s ease);
+  background: var(--bg-app, #f5f5f5);
+  height: 100%;
+}
+
+.working-area.expanded {
+
+}
+
+.content-wrapper {
+  height: 100%;
+  overflow: auto;
+  padding: 1rem;
+}
+
+/* Custom scroll */
+.content-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.content-wrapper::-webkit-scrollbar-track {
+  background: var(--border-color, #e0e0e0);
+  border-radius: 4px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb {
+  background: var(--primary-color, #00bcd4);
+  border-radius: 4px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover, #0097a7);
+}

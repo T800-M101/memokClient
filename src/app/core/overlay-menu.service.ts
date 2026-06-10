@@ -1,0 +1,70 @@
+import { Injectable, signal } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class OverlayMenuService {
+  private _isMenuOpen = signal(false);
+  private _isClosing = signal(false);
+
+  readonly isMenuOpen = this._isMenuOpen.asReadonly();
+  readonly isClosing = this._isClosing.asReadonly();
+
+  private readonly ANIMATION_DURATION = 300;
+
+  constructor() {}
+
+  toggleMenu(): void {
+    if (this._isMenuOpen()) {
+      this.closeMenu();
+    } else {
+      this.openMenu();
+    }
+  }
+
+  openMenu(): void {
+    this._isClosing.set(false);
+    this._isMenuOpen.set(true);
+  }
+
+  closeMenu(): void {
+    this._isClosing.set(true);
+
+    setTimeout(() => {
+      this._isMenuOpen.set(false);
+      this._isClosing.set(false);
+    }, this.ANIMATION_DURATION);
+  }
+
+  closeMenuImmediately(): void {
+    this._isClosing.set(false);
+    this._isMenuOpen.set(false);
+  }
+
+  show(): void {
+    this.openMenu();
+  }
+
+  hide(): void {
+    this.closeMenu();
+  }
+
+  importCurl(): void {
+    console.log('Import cURL clicked');
+    // Aquí puedes agregar la lógica para abrir el modal de importación
+    this.closeMenu();
+  }
+
+  isOpen(): boolean {
+    return this._isMenuOpen();
+  }
+
+  isClosed(): boolean {
+    return !this._isMenuOpen();
+  }
+
+  reset(): void {
+    this._isClosing.set(false);
+    this._isMenuOpen.set(false);
+  }
+}
