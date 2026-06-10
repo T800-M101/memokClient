@@ -1,12 +1,53 @@
 import { Component, input, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
+
+  isDrawerOpen = signal(false);
+  isDrawerClosing = signal(false);
+
+  newCollectionName = '';
+  newRequestName = '';
+
+  toggleDrawer(): void {
+    if (this.isDrawerOpen()) {
+      this.closeDrawer();
+    } else {
+      this.openDrawer();
+    }
+  }
+
+  openDrawer(): void {
+    this.isDrawerClosing.set(false);
+    this.isDrawerOpen.set(true);
+  }
+
+  closeDrawer(): void {
+    this.isDrawerClosing.set(true);
+
+    setTimeout(() => {
+      this.isDrawerOpen.set(false);
+      this.isDrawerClosing.set(false);
+      this.resetForm();
+    }, 250);
+  }
+
+  save(): void {
+    console.log('New Collection:', this.newCollectionName);
+    console.log('New Request:', this.newRequestName);
+    this.closeDrawer();
+  }
+
+  resetForm(): void {
+    this.newCollectionName = '';
+    this.newRequestName = '';
+  }
   collections = signal([
     {
       collectionId: '1',

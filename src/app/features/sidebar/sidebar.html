@@ -1,7 +1,42 @@
 <aside class="sidebar" id="sidebar">
   <nav class="sidebar-nav">
+    <div class="new-collection-btn">
+        <i class="fas fa-plus"></i>
+        <span (click)="toggleDrawer()">New Collection</span>
+    </div>
     <div class="search-field">
       <input type="text" placeholder="Search requests..." (input)="search($event)" class="search-input" />
+    </div>
+
+     <!-- Drawer -->
+    <div class="drawer" [class.open]="isDrawerOpen()" [class.closing]="isDrawerClosing()">
+      <div class="drawer-content">
+        <div class="drawer-header">
+          <h4>Create New</h4>
+          <button class="drawer-close" (click)="closeDrawer()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="drawer-body">
+          <input
+            type="text"
+            placeholder="New collection..."
+            [(ngModel)]="newCollectionName"
+            class="drawer-input" />
+
+          <input
+            type="text"
+            placeholder="New request..."
+            [(ngModel)]="newRequestName"
+            class="drawer-input" />
+        </div>
+
+        <div class="drawer-footer">
+          <button class="drawer-btn cancel" (click)="closeDrawer()">Cancel</button>
+          <button class="drawer-btn save" (click)="save()">Save</button>
+        </div>
+      </div>
     </div>
 
     <!-- Collections Title -->
@@ -9,7 +44,7 @@
 
     @for (collection of collections(); track collection.collectionId) {
     <div class="collection-item">
-      
+
       <!-- Collection Header (clickable to expand/collapse) -->
       <div class="collection-header" (click)="toggleCollection(collection.collectionId)">
         <i class="fas fa-chevron-right" [class.expanded]="collection.isExpanded"></i>

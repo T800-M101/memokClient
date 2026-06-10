@@ -97,6 +97,135 @@
 }
 
 /* ==========================================================================
+   DRAWER - ANIMATED SLIDE DOWN
+   ========================================================================== */
+.drawer {
+  position: relative;
+  width: 100%;
+  max-height: 0;
+  overflow: hidden;
+  background: var(--bg-hover, #2a2a3d);
+  border-radius: 12px;
+  margin-bottom: 0;
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), margin 0.2s ease;
+}
+
+.drawer.open {
+  max-height: 300px;
+  margin-bottom: 1rem;
+}
+
+.drawer.closing {
+  max-height: 0;
+  margin-bottom: 0;
+}
+
+.drawer-content {
+  padding: 1rem;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.drawer-header h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-sidebar, #e0e0e0);
+}
+
+.drawer-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawer-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+.drawer-close i {
+  font-size: 0.8rem;
+}
+
+.drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.drawer-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-sidebar, #1e1e2f);
+  border: 1px solid var(--border-sidebar, #2a2a3d);
+  border-radius: 8px;
+  color: var(--text-sidebar, #e0e0e0);
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.drawer-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #00bcd4);
+  box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.2);
+}
+
+.drawer-input::placeholder {
+  color: rgba(224, 224, 224, 0.4);
+}
+
+.drawer-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.drawer-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.drawer-btn.cancel {
+  background: transparent;
+  border: 1px solid var(--border-sidebar, #2a2a3d);
+  color: var(--text-muted, #7f8c8d);
+}
+
+.drawer-btn.cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.drawer-btn.save {
+  background: linear-gradient(135deg, var(--primary-color, #00bcd4), var(--primary-hover, #0097a7));
+  color: white;
+}
+
+.drawer-btn.save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+}
+
+/* ==========================================================================
    SEARCH FIELD
    ========================================================================== */
 .search-field {
