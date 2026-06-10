@@ -1,8 +1,8 @@
 <aside class="sidebar" id="sidebar">
   <nav class="sidebar-nav">
-    <div class="new-collection-btn">
+    <div class="new-collection-btn" (click)="toggleDrawer()">
         <i class="fas fa-plus"></i>
-        <span (click)="toggleDrawer()">New Collection</span>
+        <span>New Collection</span>
     </div>
     <div class="search-field">
       <input type="text" placeholder="Search requests..." (input)="search($event)" class="search-input" />

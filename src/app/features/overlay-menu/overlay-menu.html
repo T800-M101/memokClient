@@ -10,9 +10,9 @@
   </div>
 
   <ul class="overlay-nav-menu">
-    <li (click)="importCurl()">
+    <li (click)="toggleImportDrawer()">
       <i class="fas fa-cloud-upload-alt"></i>
-      <span (click)="toggleImportDrawer()">Import cURL</span>
+      <span>Import cURL</span>
     </li>
 
     <!-- Import cURL Drawer -->
@@ -41,9 +41,9 @@
       </div>
     </div>
 
-    <li>
+    <li (click)="toggleEnvironmentsDrawer()">
       <i class="fas fa-globe"></i>
-      <span (click)="toggleEnvironmentsDrawer()">Environments</span>
+      <span>Environments</span>
     </li>
     <div class="drawer drawer-wide" [class.open]="isEnvironmentsDrawerOpen()"
       [class.closing]="isEnvironmentsDrawerClosing()">
