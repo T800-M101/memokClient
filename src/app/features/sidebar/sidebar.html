@@ -1,18 +1,42 @@
 <aside class="sidebar" id="sidebar">
   <nav class="sidebar-nav">
-    <div class="nav-section">
-      <div class="new-collection-btn">
-        <i class="fas fa-plus"></i>
-        <span>New Collection</span>
-      </div>
+    <div class="search-field">
+      <input type="text" placeholder="Search requests..." (input)="search($event)" class="search-input" />
     </div>
 
-    <ul class="nav-menu">
-      <li class="nav-item">
-        <i class="fas fa-folder"></i>
-        <span>Collections</span>
-      </li>
-    </ul>
+    <!-- Collections Title -->
+    <div class="collections-title">Collections</div>
+
+    @for (collection of collections(); track collection.collectionId) {
+    <div class="collection-item">
+      
+      <!-- Collection Header (clickable to expand/collapse) -->
+      <div class="collection-header" (click)="toggleCollection(collection.collectionId)">
+        <i class="fas fa-chevron-right" [class.expanded]="collection.isExpanded"></i>
+        <i [class]="getFolderIcon(collection.isExpanded)" class="collection-icon"></i>
+        <span class="collection-name">{{ collection.title }}</span>
+      </div>
+
+      <!-- Request List (collapsible) -->
+      <div class="request-list" [class.collapsed]="!collection.isExpanded">
+        @for (request of collection.requests; track request.requestId) {
+        <button class="request-item" [class.get]="request.method === 'GET'" [class.post]="request.method === 'POST'"
+          [class.put]="request.method === 'PUT'" [class.delete]="request.method === 'DELETE'">
+          <span class="method">{{ request.method }}</span>
+          <span class="request-name">{{ request.name }}</span>
+        </button>
+        }
+
+        @empty {
+        <div class="empty-state">No requests yet</div>
+        }
+      </div>
+    </div>
+    }
+
+    @empty {
+    <div class="empty-state">No collections yet. Create one!</div>
+    }
 
     <div class="nav-footer">
       <li class="nav-item">
