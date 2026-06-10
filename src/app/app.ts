@@ -14,15 +14,4 @@ import { OverlayMenuService } from './core/services/overlay-menu-service/overlay
 export class App {
   protected readonly title = signal('memok-client');
   overlayMenuService = inject(OverlayMenuService);
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const isMenuButton = target.closest('.menu-toggle');
-    const isOverlayMenu = target.closest('.overlay-menu');
-
-    if (this.overlayMenuService.isMenuOpen() && !isMenuButton && !isOverlayMenu) {
-      this.overlayMenuService.closeMenu();
-    }
-  }
 }

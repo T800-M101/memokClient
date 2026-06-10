@@ -1,7 +1,7 @@
 import { Component, HostListener, inject, signal } from '@angular/core';
 import { OverlayMenuService } from '../../core/services/overlay-menu-service/overlay-menu.service';
 import { FormsModule } from '@angular/forms';
-import { EnvironmentVariable } from '../../core/interfaces/environment-variable.interface';
+import { Environment, EnvironmentVariable } from '../../core/interfaces/environment-variable.interface';
 
 @Component({
   selector: 'app-overlay-menu',
@@ -53,7 +53,7 @@ export class OverlayMenu {
     const deltaX = event.clientX - this.startX;
     let newWidth = this.startWidth + deltaX;
 
-    // Aplicar límites
+    // Apply limits
     newWidth = Math.max(this.MIN_WIDTH, Math.min(this.MAX_WIDTH, newWidth));
     this.menuWidth.set(newWidth);
   }
@@ -146,4 +146,90 @@ export class OverlayMenu {
     console.log('Saving environment:', envData);
     this.closeEnvironmentsDrawer();
   }
+
+  environments = signal<Environment[]>([
+  {
+    id: '1',
+    name: 'Development',
+    variables: [
+      { key: 'protocol', value: 'http' },
+      { key: 'host', value: 'localhost' },
+      { key: 'port', value: '3000' }
+    ],
+    createdAt: new Date()
+  },
+  {
+    id: '2',
+    name: 'Production',
+    variables: [
+      { key: 'protocol', value: 'https' },
+      { key: 'host', value: 'api.example.com' },
+      { key: 'port', value: '443' },
+      { key: 'JWT', value: 'prod-token-789' }
+    ],
+    createdAt: new Date()
+  }
+]);
+
+selectedEnvId = signal<string | null>('1');
+expandedEnvId = signal<string | null>(null);
+
+ selectEnvironment(id: string) {
+    this.selectedEnvId.set(id);
+    console.log('Selected environment:', id);
+  }
+
+  // Toggle para expandir/colapsar
+toggleEnvironmentExpand(envId: string) {
+  if (this.expandedEnvId() === envId) {
+    this.expandedEnvId.set(null);
+  } else {
+    this.expandedEnvId.set(envId);
+  }
+}
+
+// Cerrar panel expandido
+closeEnvironmentExpand() {
+  this.expandedEnvId.set(null);
+}
+
+// Añadir variable a un environment específico
+addVariableToEnvironment(envId: string) {
+  this.environments.update(envs =>
+    envs.map(env =>
+      env.id === envId
+        ? { ...env, variables: [...env.variables, { key: '', value: '' }] }
+        : env
+    )
+  );
+}
+
+// Actualizar variable
+updateVariable(envId: string, index: number, key: string, value: string) {
+  this.environments.update(envs =>
+    envs.map(env =>
+      env.id === envId
+        ? {
+            ...env,
+            variables: env.variables.map((v, i) =>
+              i === index ? { key: key.trim(), value: value } : v
+            )
+          }
+        : env
+    )
+  );
+}
+
+// Eliminar variable de un environment
+deleteVariableFromEnvironment(envId: string, index: number) {
+  if (confirm('Delete this variable?')) {
+    this.environments.update(envs =>
+      envs.map(env =>
+        env.id === envId
+          ? { ...env, variables: env.variables.filter((_, i) => i !== index) }
+          : env
+      )
+    );
+  }
+}
 }
