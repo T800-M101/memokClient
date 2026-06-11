@@ -1,6 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ProxyResponse } from '../../interfaces/proxy-response.interface';
 import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { ApiRequest } from '../../interfaces/api-request.interface';
+import { Collection } from '../../interfaces/collection.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -39,12 +42,36 @@ export class RequestsService {
 
   this.http.get<any[]>(url).subscribe({
     next: (data) => {
-      this._collections.set(data); 
+      this._collections.set(data);
     },
     error: (err) => {
       console.error('Error al cargar colecciones:', err);
     }
   });
+}
+
+createCollection(name: string, requests: ApiRequest[] = []): Observable<Collection> {
+  const url = this.getEndpoint('collections');
+  const body: Partial<Collection> = {
+    collectionId: crypto.randomUUID(),
+    name,
+    icon: 'fas fa-folder',
+    requests
+  };
+console.log('Payload enviado al servidor:', JSON.stringify(body, null, 2));
+  return this.http.post<Collection>(url, body).pipe(
+    tap(() => this.getCollections()) // Refresh global list
+  );
+}
+
+addRequest(request: ApiRequest): Observable<any> {
+  const url = this.getEndpoint('requests');
+
+  return this.http.post(url, request).pipe(
+    tap(() => {
+      this.getCollections();
+    })
+  );
 }
 
   clearResponse(): void {

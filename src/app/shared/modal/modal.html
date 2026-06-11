@@ -38,7 +38,7 @@
       </label>
       <select class="form-select" [(ngModel)]="selectedCollectionId">
         <option value="" disabled>Select a collection</option>
-        @for (col of collections(); track col.id) {
+        @for (col of collections(); track col.collectionId || $index) {
           <option [value]="col.id">{{ col.name }}</option>
         }
         <option value="new" class="new-option">+ Create new collection</option>

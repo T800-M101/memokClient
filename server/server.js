@@ -90,27 +90,50 @@ app.get('/api/collections', (req, res) => {
 });
 
 app.post('/api/collections', (req, res) => {
-  const { name, requests } = req.body;
+  const { collectionId, name, icon, requests } = req.body;
 
   try {
-    // 1. Read the current collections
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
     const collections = JSON.parse(data || '[]');
 
-    // 2. Validate duplicates
     const exists = collections.find(c => c.name.toLowerCase() === name.toLowerCase());
-
     if (exists) {
       return res.status(409).json({ error: 'A collection with that name already exists.' });
     }
 
-    // 3. If it doesn't exist, add and save.
-    collections.push({ name, requests });
+    const newCollection = { collectionId, name, icon, requests };
+    collections.push(newCollection);
+
     fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
 
-    res.status(200).json({ message: 'Collection successfully saved' });
+    res.status(200).json(newCollection);
   } catch (err) {
     res.status(500).json({ error: 'Internal error saving' });
+  }
+});
+
+app.post('/api/requests', (req, res) => {
+  const newRequest = req.body;
+
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf-8');
+    const collections = JSON.parse(data || '[]');
+
+    // We are looking for the collection where this request belongs.
+    const collection = collections.find(c => c.collectionId === newRequest.collectionId);
+
+    if (!collection) {
+      return res.status(404).json({ error: 'Collection not found' });
+    }
+
+    collection.requests.push(newRequest);
+
+    // We saved the updated file.
+    fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
+
+    res.status(200).json({ message: 'Request added successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal error' });
   }
 });
 

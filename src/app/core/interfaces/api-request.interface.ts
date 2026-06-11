@@ -1,5 +1,5 @@
 export interface ApiRequest {
-  id: string;
+  requestId: string;
   collectionId: string;
   name: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
