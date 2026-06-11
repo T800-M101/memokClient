@@ -1,8 +1,8 @@
 export interface ProxyResponse {
   status: number;
-  statusText?: string;
-  headers: any;
-  duration?: string;
+  statusText: string;
+  headers: Record<string, string>;
+  duration: string;
   body: any;
-  timestamp?: string;  
+  timestamp: string;
 }

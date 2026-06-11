@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ModalService } from '../../core/services/modal-service/modal-service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Sidebar {
   private readonly http = inject(HttpClient);
-
+  modalService = inject(ModalService);
   isDrawerOpen = signal(false);
   isDrawerClosing = signal(false);
 

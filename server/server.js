@@ -33,7 +33,6 @@ if (!fs.existsSync(DATA_FILE)) {
 // Middleware
 // ====================
 
-//app.use(cors());
 
 app.use(express.json());
 
@@ -94,24 +93,24 @@ app.post('/api/collections', (req, res) => {
   const { name, requests } = req.body;
 
   try {
-    // 1. Leer las colecciones actuales
+    // 1. Read the current collections
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
     const collections = JSON.parse(data || '[]');
 
-    // 2. Validar duplicados
+    // 2. Validate duplicates
     const exists = collections.find(c => c.name.toLowerCase() === name.toLowerCase());
 
     if (exists) {
-      return res.status(409).json({ error: 'Ya existe una colección con ese nombre' });
+      return res.status(409).json({ error: 'A collection with that name already exists.' });
     }
 
-    // 3. Si no existe, agregar y guardar
+    // 3. If it doesn't exist, add and save.
     collections.push({ name, requests });
     fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
 
-    res.status(200).json({ message: 'Colección guardada con éxito' });
+    res.status(200).json({ message: 'Collection successfully saved' });
   } catch (err) {
-    res.status(500).json({ error: 'Error interno al guardar' });
+    res.status(500).json({ error: 'Internal error saving' });
   }
 });
 

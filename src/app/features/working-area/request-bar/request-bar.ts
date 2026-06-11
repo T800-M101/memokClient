@@ -10,7 +10,7 @@ import { ApiRequest } from '../../../core/interfaces/api-request.interface';
   styleUrl: './request-bar.scss',
 })
 export class RequestBar {
-  //private tabsService = inject(TabsService);
+  private requestsService = inject(RequestsService);
 
   selectedIndex = signal<number>(0);
   isDropdownOpen = false;
@@ -74,11 +74,10 @@ export class RequestBar {
       url: 'https://reqres.in/api/login',
     },
   ]);
-  private requestsService = inject(RequestsService);
 
   requestData = input<ApiRequest>();
   change = output<Partial<ApiRequest>>();
-  requestName = 'Untitled Request';
+  requestName = '';
   method = 'GET';
   url = '';
   isCopied = false;

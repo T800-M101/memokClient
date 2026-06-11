@@ -61,11 +61,19 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button class="copy-curl-btn" (click)="copyAsCurl()" [class.copied]="isCopied">
+      <button
+        class="copy-curl-btn"
+        (click)="copyAsCurl()"
+        [class.copied]="isCopied">
         <i class="fas fa-terminal"></i>
         <span>{{ isCopied ? 'Copied!' : 'cURL' }}</span>
       </button>
-      <button class="save-req-btn" (click)="saveRequest()">
+
+      <button
+        class="save-req-btn"
+        (click)="saveRequest()"
+        [disabled]="!requestName"
+        >
         <i class="fas fa-save"></i>
         <span>Save</span>
       </button>
@@ -100,7 +108,10 @@
     </div>
 
     <!-- Send Button -->
-    <button class="send-btn" (click)="sendRequest()" [disabled]="!url">
+    <button
+      class="send-btn"
+      (click)="sendRequest()"
+      [disabled]="!url">
       <i class="fas fa-paper-plane"></i>
       <span>Send</span>
     </button>

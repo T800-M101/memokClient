@@ -1,7 +1,7 @@
 <aside class="sidebar" id="sidebar">
-  <nav class="sidebar-nav">
-    <div class="new-collection-btn" (click)="toggleDrawer()">
-        <i class="fas fa-plus"></i>
+  <nav class="sidebar-nav" (click)="toggleDrawer()">
+    <div class="new-collection-btn" (click)="modalService.open()" >
+        <i class="fas fa-plus" ></i>
         <span>New Request</span>
     </div>
     <div class="search-field">
