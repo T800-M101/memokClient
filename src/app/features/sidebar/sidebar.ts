@@ -1,4 +1,5 @@
-import { Component, input, output, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -8,6 +9,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
+  private readonly http = inject(HttpClient);
 
   isDrawerOpen = signal(false);
   isDrawerClosing = signal(false);
@@ -39,15 +41,32 @@ export class Sidebar {
   }
 
   save(): void {
-    console.log('New Collection:', this.newCollectionName);
-    console.log('New Request:', this.newRequestName);
-    this.closeDrawer();
-  }
+  const newCollection = {
+    name: this.newCollectionName,
+    requests: [{ name: this.newRequestName }]
+  };
 
-  resetForm(): void {
+  this.http.post('/api/collections', newCollection).subscribe({
+    next: () => {
+      this.closeDrawer();
+      this.resetForm();
+    },
+    error: (err) => {
+      if (err.status === 409) {
+        alert('Ese nombre ya está en uso, intenta con otro.');
+      } else {
+        alert('Ocurrió un error inesperado.');
+      }
+    }
+  });
+}
+
+  private resetForm(): void {
     this.newCollectionName = '';
     this.newRequestName = '';
   }
+
+
   collections = signal([
     {
       collectionId: '1',

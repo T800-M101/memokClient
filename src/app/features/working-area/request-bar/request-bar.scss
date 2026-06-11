@@ -8,7 +8,7 @@
 
 .request-bar {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   background: var(--bg-card, #ffffff);
@@ -24,8 +24,118 @@
 }
 
 /* ==========================================================================
-   METHOD SELECTOR
+   TOP ROW - Request Name & Action Buttons
    ========================================================================== */
+.request-bar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.request-name-container {
+  flex: 1;
+}
+
+.request-name-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-soft, #f5f5f5);
+  border: 1px solid var(--border-input, #d9d9d9);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main, #2c3e50);
+  transition: all 0.15s ease;
+}
+
+.request-name-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #00bcd4);
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+}
+
+.request-name-input::placeholder {
+  color: var(--text-placeholder, #999999);
+  font-weight: normal;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.copy-curl-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-soft, #f5f5f5);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  color: var(--text-muted, #7f8c8d);
+  font-weight: 500;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.8rem;
+  }
+
+  &:hover {
+    background: rgba(0, 188, 212, 0.1);
+    border-color: var(--primary-color, #00bcd4);
+    color: var(--primary-color, #00bcd4);
+  }
+
+  &.copied {
+    background: #4caf50;
+    border-color: #4caf50;
+    color: white;
+
+    i {
+      color: white;
+    }
+  }
+}
+
+.save-req-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--primary-color, #00bcd4), var(--primary-hover, #0097a7));
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.8rem;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+  }
+}
+
+/* ==========================================================================
+   BOTTOM ROW - Method & URL
+   ========================================================================== */
+.request-bar-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Method Selector */
 .method-selector {
   display: flex;
   gap: 0.25rem;
@@ -65,9 +175,7 @@
 .method-btn.active[class*="DELETE"] { background: #f44336; }
 .method-btn.active[class*="PATCH"] { background: #9c27b0; }
 
-/* ==========================================================================
-   URL INPUT
-   ========================================================================== */
+/* URL Input */
 .url-container {
   flex: 1;
 }
@@ -96,9 +204,7 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ==========================================================================
-   SEND BUTTON
-   ========================================================================== */
+/* Send Button */
 .send-btn {
   display: flex;
   align-items: center;
@@ -137,9 +243,17 @@
    RESPONSIVE
    ========================================================================== */
 @media (max-width: 768px) {
-  .request-bar {
+  .request-bar-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-buttons {
+    justify-content: flex-end;
+  }
+
+  .request-bar-bottom {
     flex-wrap: wrap;
-    gap: 0.5rem;
   }
 
   .method-selector {
@@ -158,12 +272,18 @@
 }
 
 /* ==========================================================================
-   DARK MODE SUPPORT (opcional)
+   DARK MODE SUPPORT
    ========================================================================== */
 @media (prefers-color-scheme: dark) {
   .request-bar {
     background: var(--bg-sidebar, #1e1e2f);
     border-color: var(--border-sidebar, #2a2a3d);
+  }
+
+  .request-name-input {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+    color: var(--text-sidebar, #e0e0e0);
   }
 
   .method-selector {
@@ -188,24 +308,96 @@
   .url-input:focus {
     background: var(--bg-sidebar, #1e1e2f);
   }
+
+  .copy-curl-btn {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+
 }
 
-.copy-curl-btn {
+/* Navigation Buttons */
+.nav-buttons {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
+  gap: 0.25rem;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   background: var(--bg-soft, #f5f5f5);
   border: 1px solid var(--border-color, #e0e0e0);
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--text-muted, #7f8c8d);
-  font-weight: 500;
-  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.15s ease;
 
   i {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(0, 188, 212, 0.1);
+    border-color: var(--primary-color, #00bcd4);
+    color: var(--primary-color, #00bcd4);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.request-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-muted, #7f8c8d);
+  font-weight: 500;
+
+  span:first-child {
+    min-width: 24px;
+    text-align: center;
+  }
+}
+
+/* ==========================================================================
+   REQUEST COUNTER & DROPDOWN
+   ========================================================================== */
+.requests-dropdown {
+  position: relative;
+}
+
+.request-counter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--bg-soft, #f5f5f5);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  font-size: 0.7rem;
+  color: var(--text-muted, #7f8c8d);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.6rem;
+    margin-left: 0.25rem;
+    transition: transform 0.2s ease;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
   }
 
   &:hover {
@@ -213,14 +405,179 @@
     border-color: var(--primary-color, #00bcd4);
     color: var(--primary-color, #00bcd4);
   }
+}
 
-  &.copied {
-    background: #4caf50;
-    border-color: #4caf50;
-    color: white;
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 280px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease;
+}
 
-    i {
-      color: white;
-    }
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg-soft, #f5f5f5);
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted, #7f8c8d);
+}
+
+.close-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  font-size: 0.6rem;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: #f44336;
+    color: #f44336;
+  }
+}
+
+.dropdown-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid var(--border-soft, #eeeeee);
+
+  &:hover {
+    background: var(--bg-soft, #f5f5f5);
+  }
+
+  &.active {
+    background: rgba(0, 188, 212, 0.1);
+    border-left: 3px solid var(--primary-color, #00bcd4);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.request-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.request-method {
+  display: inline-block;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  &.get { background: rgba(0, 188, 212, 0.15); color: #00bcd4; }
+  &.post { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
+  &.put { background: rgba(255, 152, 0, 0.15); color: #ff9800; }
+  &.delete { background: rgba(244, 67, 54, 0.15); color: #f44336; }
+}
+
+.request-name {
+  font-size: 0.75rem;
+  color: var(--text-main, #2c3e50);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.close-request-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0;
+
+  i {
+    font-size: 0.7rem;
+  }
+
+  &:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #f44336;
+  }
+}
+
+.dropdown-item:hover .close-request-btn {
+  opacity: 1;
+}
+
+/* Close current request button */
+.request-name-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.close-current-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted, #7f8c8d);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.7rem;
+  }
+
+  &:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #f44336;
   }
 }

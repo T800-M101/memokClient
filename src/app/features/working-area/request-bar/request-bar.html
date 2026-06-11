@@ -1,43 +1,108 @@
 <div class="request-bar">
-  <!-- Method Selector -->
-  <div class="method-selector">
-    <div class="method-btn" [class.active]="method === 'GET'" (click)="onMethodChange('GET')">
-      <span>GET</span>
+  <!-- Top row with navigation and request name -->
+  <div class="request-bar-top">
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <button class="nav-btn" (click)="navigatePrevious()" [disabled]="!hasPrevious()" title="Previous request">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button class="nav-btn" (click)="navigateNext()" [disabled]="!hasNext()" title="Next request">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <!-- Dropdown para ver todas las requests -->
+      <div class="requests-dropdown" (click)="$event.stopPropagation()">
+        <button class="request-counter-btn" (click)="toggleDropdown()" [class.open]="isDropdownOpen">
+          <span>{{ currentIndex + 1 }}</span>
+          <span>/</span>
+          <span>{{ totalRequests }}</span>
+          <i class="fas fa-chevron-down" [class.rotated]="isDropdownOpen"></i>
+        </button>
+
+        @if (isDropdownOpen) {
+        <div class="dropdown-menu">
+          <div class="dropdown-header">
+            <span>Open Requests ({{ totalRequests }})</span>
+            <button class="close-all-btn" (click)="closeAllRequests()" title="Close all">
+              <i class="fas fa-times"></i> Close all
+            </button>
+          </div>
+          <div class="dropdown-list">
+            @for (request of mockTabs(); track request.requestId; let i = $index) {
+            <div class="dropdown-item" [class.active]="i === currentIndex" (click)="goToRequest(i)">
+              <div class="request-info">
+                <span class="request-method" [class.get]="request.method === 'GET'"
+                  [class.post]="request.method === 'POST'" [class.put]="request.method === 'PUT'"
+                  [class.delete]="request.method === 'DELETE'">
+                  {{ request.method }}
+                </span>
+                <span class="request-name">{{ request.name }}</span>
+              </div>
+              <button class="close-request-btn" (click)="closeRequest(i, $event)" title="Close request">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
     </div>
-    <div class="method-btn" [class.active]="method === 'POST'" (click)="onMethodChange('POST')">
-      <span>POST</span>
+
+    <!-- Request Name Input -->
+    <div class="request-name-container">
+      <input type="text" class="request-name-input" placeholder="Untitled Request" [ngModel]="requestName"
+        (ngModelChange)="onRequestNameChange($event)" />
+      <!-- Botón cerrar request actual -->
+      <button class="close-current-btn" (click)="closeCurrentRequest()" title="Close request">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="method-btn" [class.active]="method === 'PUT'" (click)="onMethodChange('PUT')">
-      <span>PUT</span>
-    </div>
-    <div class="method-btn" [class.active]="method === 'DELETE'" (click)="onMethodChange('DELETE')">
-      <span>DELETE</span>
-    </div>
-    <div class="method-btn" [class.active]="method === 'PATCH'" (click)="onMethodChange('PATCH')">
-      <span>PATCH</span>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="copy-curl-btn" (click)="copyAsCurl()" [class.copied]="isCopied">
+        <i class="fas fa-terminal"></i>
+        <span>{{ isCopied ? 'Copied!' : 'cURL' }}</span>
+      </button>
+      <button class="save-req-btn" (click)="saveRequest()">
+        <i class="fas fa-save"></i>
+        <span>Save</span>
+      </button>
     </div>
   </div>
 
-  <!-- URL Input -->
-  <div class="url-container">
-    <input
-      type="text"
-      class="url-input"
-      placeholder="https://api.example.com/users"
-      [ngModel]="url"
-      (ngModelChange)="onUrlChange($event)"
-      (keyup.enter)="sendRequest()" />
+  <!-- Bottom row with method selector and URL -->
+  <div class="request-bar-bottom">
+    <!-- Method Selector -->
+    <div class="method-selector">
+      <div class="method-btn" [class.active]="method === 'GET'" (click)="onMethodChange('GET')">
+        <span>GET</span>
+      </div>
+      <div class="method-btn" [class.active]="method === 'POST'" (click)="onMethodChange('POST')">
+        <span>POST</span>
+      </div>
+      <div class="method-btn" [class.active]="method === 'PUT'" (click)="onMethodChange('PUT')">
+        <span>PUT</span>
+      </div>
+      <div class="method-btn" [class.active]="method === 'DELETE'" (click)="onMethodChange('DELETE')">
+        <span>DELETE</span>
+      </div>
+      <div class="method-btn" [class.active]="method === 'PATCH'" (click)="onMethodChange('PATCH')">
+        <span>PATCH</span>
+      </div>
+    </div>
+
+    <!-- URL Input -->
+    <div class="url-container">
+      <input type="text" class="url-input" placeholder="https://api.example.com/users" [ngModel]="url"
+        (ngModelChange)="onUrlChange($event)" (keyup.enter)="sendRequest()" />
+    </div>
+
+    <!-- Send Button -->
+    <button class="send-btn" (click)="sendRequest()" [disabled]="!url">
+      <i class="fas fa-paper-plane"></i>
+      <span>Send</span>
+    </button>
   </div>
-
-  <!-- Copy cURL Button -->
-  <button class="copy-curl-btn" (click)="copyAsCurl()" [class.copied]="isCopied">
-    <i class="fas fa-terminal"></i>
-    <span>{{ isCopied ? 'Copied!' : 'cURL' }}</span>
-  </button>
-
-  <!-- Send Button -->
-  <button class="send-btn" (click)="sendRequest()" [disabled]="!url">
-    <i class="fas fa-paper-plane"></i>
-    <span>Send</span>
-  </button>
 </div>
