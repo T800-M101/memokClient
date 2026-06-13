@@ -42,19 +42,6 @@
         "requestId": "f0adbc24-8d25-4311-9349-c950fcd78846",
         "collectionId": "f42cfa2c-9aba-4620-9853-03838ef9a853",
         "name": "Delete user",
-        "method": "GET",
-        "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null
-      },
-      {
-        "requestId": "f0adbc24-8d25-4311-9349-c950fcd78846",
-        "collectionId": "f42cfa2c-9aba-4620-9853-03838ef9a853",
-        "name": "Delete user",
         "method": "DELETE",
         "url": "",
         "params": {},
@@ -84,9 +71,22 @@
           "type": "none"
         },
         "body": null
+      },
+      {
+        "requestId": "26c5dc04-b844-4c31-bfab-679752337e1e",
+        "collectionId": "6d72aa1d-8b14-4128-b27f-e60c50157ca6",
+        "name": "sdsdsds",
+        "method": "GET",
+        "url": "",
+        "params": {},
+        "headers": {},
+        "auth": {
+          "type": "none"
+        },
+        "body": null
       }
     ],
-    "isExpanded": true
+    "isExpanded": false
   },
   {
     "collectionId": "09ed16e6-937e-421e-bf67-4f3990ad170d",
@@ -107,7 +107,7 @@
         "body": null
       }
     ],
-    "isExpanded": true
+    "isExpanded": false
   },
   {
     "collectionId": "c2b81941-5a23-41ab-b028-8d6aa48ea7c8",
@@ -128,7 +128,7 @@
         "body": null
       }
     ],
-    "isExpanded": true
+    "isExpanded": false
   },
   {
     "collectionId": "5aca3226-1ffe-4bbe-9457-d360870522be",
@@ -149,6 +149,6 @@
         "collectionId": "5aca3226-1ffe-4bbe-9457-d360870522be"
       }
     ],
-    "isExpanded": true
+    "isExpanded": false
   }
 ]

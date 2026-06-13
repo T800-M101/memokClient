@@ -6,10 +6,11 @@ import { OverlayMenu } from './features/overlay-menu/overlay-menu';
 import { OverlayMenuService } from './core/services/overlay-menu-service/overlay-menu.service';
 import { Modal } from './shared/modal/modal';
 import { RequestsService } from './core/services/requests-service/requests-service';
+import { NotificationComponent } from './shared/notification/notification.component';
 
 @Component({
   selector: 'app-root',
-  imports: [Topbar, Sidebar, WorkingArea, OverlayMenu, Modal],
+  imports: [Topbar, Sidebar, WorkingArea, OverlayMenu, Modal, NotificationComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

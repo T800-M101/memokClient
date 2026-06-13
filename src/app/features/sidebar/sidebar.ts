@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../core/services/modal-service/modal-service';
 import { RequestsService } from '../../core/services/requests-service/requests-service';
 import { ApiRequest } from '../../core/interfaces/api-request.interface';
+import { NotificationService } from '../../core/services/notifications/notification-service';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,6 +15,7 @@ import { ApiRequest } from '../../core/interfaces/api-request.interface';
 export class Sidebar {
   private readonly http = inject(HttpClient);
   private readonly requestsService = inject(RequestsService);
+  private readonly notificationService = inject(NotificationService);
 
   collections = this.requestsService.collections;
   onSelectRequest = output<string>();
@@ -58,14 +60,15 @@ export class Sidebar {
 
     this.http.post('/api/collections', newCollection).subscribe({
       next: () => {
+        this.notificationService.success('Collection created successfully!');
         this.closeDrawer();
         this.resetForm();
       },
       error: (err) => {
         if (err.status === 409) {
-          alert('Ese nombre ya está en uso, intenta con otro.');
+          this.notificationService.error('That name is already in use. Please try another one.');
         } else {
-          alert('Ocurrió un error inesperado.');
+          this.notificationService.error('An unexpected error occurred. Please try again.');
         }
       },
     });
@@ -76,7 +79,11 @@ export class Sidebar {
     this.newRequestName = '';
   }
 
-  search(event: Event) {}
+  search(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+    this.onSearch.emit(value);
+  }
 
   getFolderIcon(isExpanded: boolean): string {
     return isExpanded ? 'fas fa-folder-open' : 'fas fa-folder';
@@ -89,8 +96,12 @@ export class Sidebar {
       this.http
         .put(`/api/collections/${collectionId}`, { isExpanded: collection.isExpanded })
         .subscribe({
+          next: () => {
+            // Optional: silent success - no notification needed for this action
+          },
           error: (err) => {
             console.error('Error saving collection state:', err);
+            this.notificationService.warning('Failed to save collection state.');
           },
         });
     }
@@ -115,7 +126,6 @@ export class Sidebar {
   }
 
   selectRequest(collectionId: string, request: ApiRequest): void {
-    console.log('clicked');
     this.requestsService.setActiveRequest(collectionId, request);
   }
 }

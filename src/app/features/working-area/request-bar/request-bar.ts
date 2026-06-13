@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RequestsService } from '../../../core/services/requests-service/requests-service';
 import { ApiRequest } from '../../../core/interfaces/api-request.interface';
 import { ModalService } from '../../../core/services/modal-service/modal-service';
+import { NotificationService } from '../../../core/services/notifications/notification-service';
 
 @Component({
   selector: 'app-request-bar',
@@ -13,6 +14,7 @@ import { ModalService } from '../../../core/services/modal-service/modal-service
 export class RequestBar {
   private requestsService = inject(RequestsService);
   private modalService = inject(ModalService);
+  private notificationService = inject(NotificationService);
 
   // Signals del servicio
   readonly activeRequest = this.requestsService.activeRequest;
@@ -22,14 +24,8 @@ export class RequestBar {
   readonly totalRequests = computed(() => this.openRequests().length);
   readonly hasPrevious = computed(() => this.currentIndex() > 0);
   readonly hasNext = computed(() => this.currentIndex() < this.totalRequests() - 1);
-
-  // ✅ Método actual (computed) - se actualiza automáticamente
   readonly method = computed(() => this.activeRequest()?.method || 'GET');
-
-  // ✅ URL actual (computed)
   readonly url = computed(() => this.activeRequest()?.url || '');
-
-  // ✅ Request name (computed)
   readonly requestName = computed(() => this.activeRequest()?.name || '');
 
   readonly currentIndex = computed(() => {
@@ -192,5 +188,4 @@ export class RequestBar {
     this.requestsService.closeAllRequests();
     this.isDropdownOpen = false;
   }
-
 }

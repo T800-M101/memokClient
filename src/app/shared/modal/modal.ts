@@ -3,6 +3,7 @@ import { RequestsService } from '../../core/services/requests-service/requests-s
 import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../core/services/modal-service/modal-service';
 import { ApiRequest } from '../../core/interfaces/api-request.interface';
+import { NotificationService } from '../../core/services/notifications/notification-service';
 
 export interface NewRequestData {
   name: string;
@@ -19,6 +20,7 @@ export interface NewRequestData {
 export class Modal {
   private readonly requestsService = inject(RequestsService);
   private readonly modalService = inject(ModalService);
+  private readonly notificationService = inject(NotificationService);
 
   // Output para notificar cuando se guarda
   requestSaved = output<ApiRequest>();
@@ -93,7 +95,8 @@ export class Modal {
         },
         error: (err) => {
           console.error('Error creating collection:', err);
-          alert('Could not create new collection.');
+          this.notificationService.error(`Error saving the request: ${err.message || 'Unknown error'}`);
+          // alert('Could not create new collection.');
         }
       });
     } else {
@@ -146,7 +149,7 @@ export class Modal {
       },
       error: (err: any) => {
         console.error('Error saving request:', err);
-        alert(`Error saving the request: ${err.message || 'Unknown error'}`);
+        this.notificationService.error(`Error saving the request: ${err.message || 'Unknown error'}`);
       }
     });
   }
