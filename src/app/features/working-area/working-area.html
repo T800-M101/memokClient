@@ -8,8 +8,22 @@
           <app-response-section />
         </div>
       } @else {
-        <div class="empty-state">
-          Select or create a request
+        <div class="empty-state-container">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fas fa-code-branch"></i>
+            </div>
+            <h3 class="empty-state-title">No Active Request</h3>
+            <p class="empty-state-message">
+              Select a request from the sidebar or create a new one to get started.
+            </p>
+            <div class="empty-state-actions">
+              <button class="create-request-btn" (click)="createNewRequest()">
+                <i class="fas fa-plus"></i>
+                Create New Request
+              </button>
+            </div>
+          </div>
         </div>
       }
     </div>

@@ -2,25 +2,43 @@
   <!-- Tab Headers (siempre visibles, NO se colapsan) -->
   <div class="tab-headers">
 
-    <button class="tab-btn" [class.active]="activeTab() === 'params'" (click)="setActiveTab('params')">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'params'"
+      (click)="setActiveTab('params')">
       <i class="fas fa-link"></i>
       <span>Params</span>
     </button>
-    <button class="tab-btn" [class.active]="activeTab() === 'headers'" (click)="setActiveTab('headers')">
+
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'headers'"
+      (click)="setActiveTab('headers')">
       <i class="fas fa-heading"></i>
       <span>Headers</span>
     </button>
-    <button class="tab-btn" [class.active]="activeTab() === 'auth'" (click)="setActiveTab('auth')">
+
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'auth'"
+      (click)="setActiveTab('auth')">
       <i class="fas fa-shield-alt"></i>
       <span>Authorization</span>
     </button>
-    <button class="tab-btn" [class.active]="activeTab() === 'body'" (click)="setActiveTab('body')">
+
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'body'"
+      (click)="setActiveTab('body')">
       <i class="fas fa-code"></i>
       <span>Body</span>
     </button>
-    <button class="collapse-btn" (click)="toggleCollapse()"
+
+    <button
+      class="collapse-btn"
+      (click)="toggleCollapse()"
       [title]="isCollapsed() ? 'Expand configuration' : 'Collapse configuration'">
-      <i class="fas" [class.fa-chevron-up]="!isCollapsed()" [class.fa-chevron-down]="isCollapsed()"></i>
+      <i class="fas" [class.fa-chevron-up]="!isCollapsed()"[class.fa-chevron-down]="isCollapsed()"></i>
       <span>{{ isCollapsed() ? 'Show Configuration' : 'Hide Configuration' }}</span>
     </button>
   </div>
@@ -32,7 +50,9 @@
     <div class="tab-content">
       <div class="table-header">
         <h6>Query Parameters</h6>
-        <button class="add-btn" (click)="addParam()">
+        <button
+          class="add-btn"
+          (click)="addParam()">
           <i class="fas fa-plus"></i>
           Add Parameter
         </button>
