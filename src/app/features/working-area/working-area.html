@@ -1,11 +1,17 @@
 <main class="working-area" id="workingArea">
   <div class="content-wrapper">
     <div class="workspace">
-      <div class="request-page">
-        <app-request-bar />
-        <app-config-bar />
-        <app-response-section />
-      </div>
+      @if(activeRequest(); as req){
+        <div class="request-page">
+          <app-request-bar />
+          <app-config-bar />
+          <app-response-section />
+        </div>
+      } @else {
+        <div class="empty-state">
+          Select or create a request
+        </div>
+      }
     </div>
   </div>
 </main>

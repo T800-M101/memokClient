@@ -11,22 +11,37 @@ import { ApiRequest } from '../../../core/interfaces/api-request.interface';
 })
 export class RequestBar {
   private requestsService = inject(RequestsService);
-
+  request = this.requestsService.activeRequest;
   selectedIndex = signal<number>(0);
   isDropdownOpen = false;
+  requestData = input<ApiRequest>();
+  change = output<Partial<ApiRequest>>();
+  requestName = '';
+  method = 'GET';
+  url = '';
+  isCopied = false;
 
-  // Computed values
-  currentRequest = computed(() => this.mockTabs()[this.selectedIndex()]);
+  readonly activeRequest = this.requestsService.activeRequest;
+  readonly openRequests = this.requestsService.openRequests;
 
-  get currentIndex(): number {
-    return 0;
+  readonly currentIndex = computed(() => {
+    const current = this.activeRequest();
+    if (!current) return 0;
+    return this.openRequests().findIndex((r) => r.requestId === current.requestId);
+  });
+
+  readonly totalRequests = computed(() => this.openRequests().length);
+
+  readonly hasPrevious = computed(() => this.currentIndex() > 0);
+  readonly hasNext = computed(() => this.currentIndex() < this.totalRequests() - 1);
+
+  ngOnInit() {
+    if (this.requestData()) {
+      this.method = this.requestData()?.method || 'GET';
+      this.url = this.requestData()?.url || '';
+    }
   }
 
-  get totalRequests(): number {
-    return 0;
-  }
-
-  // Cerrar dropdown al hacer click fuera
   @HostListener('document:click')
   closeDropdown() {
     this.isDropdownOpen = false;
@@ -36,57 +51,18 @@ export class RequestBar {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  mockTabs = signal<any[]>([
-    {
-      requestId: 'req-1',
-      name: 'Get Users',
-      method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/users',
-    },
-    {
-      requestId: 'req-2',
-      name: 'Create Post',
-      method: 'POST',
-      url: 'https://jsonplaceholder.typicode.com/posts',
-    },
-    {
-      requestId: 'req-3',
-      name: 'Update User',
-      method: 'PUT',
-      url: 'https://jsonplaceholder.typicode.com/users/1',
-    },
-    {
-      requestId: 'req-4',
-      name: 'Delete Product',
-      method: 'DELETE',
-      url: 'https://fakestoreapi.com/products/1',
-    },
-    {
-      requestId: 'req-5',
-      name: 'Get Products',
-      method: 'GET',
-      url: 'https://fakestoreapi.com/products',
-    },
-    {
-      requestId: 'req-6',
-      name: 'Login Request',
-      method: 'POST',
-      url: 'https://reqres.in/api/login',
-    },
-  ]);
+  
+  onUrlChange(url: string): void {
+    this.requestsService.updateActiveRequest({
+      url,
+    });
+  }
 
-  requestData = input<ApiRequest>();
-  change = output<Partial<ApiRequest>>();
-  requestName = '';
-  method = 'GET';
-  url = '';
-  isCopied = false;
+  updateActiveRequest(changes: Partial<ApiRequest>): void {
+    const current = this.requestsService.activeRequest();
+    if (!current) return;
 
-  ngOnInit() {
-    if (this.requestData()) {
-      this.method = this.requestData()?.method || 'GET';
-      this.url = this.requestData()?.url || '';
-    }
+    this.requestsService.updateActiveRequest(changes);
   }
 
   onMethodChange(method: string) {
@@ -94,14 +70,8 @@ export class RequestBar {
     //this.change.emit({ method });
   }
 
-  onUrlChange(url: string) {
-    this.url = url;
-    this.change.emit({ url });
-  }
-
-  onRequestNameChange(name: string) {
-    this.requestName = name;
-    this.change.emit({ name });
+  onRequestNameChange(name: string): void {
+    this.requestsService.updateActiveRequest({ name });
   }
 
   async sendRequest() {
@@ -167,14 +137,6 @@ export class RequestBar {
     return curl;
   }
 
-  hasPrevious(): boolean {
-    return this.currentIndex > 0;
-  }
-
-  hasNext(): boolean {
-    return this.currentIndex < this.totalRequests - 1;
-  }
-
   navigatePrevious(): void {
     if (this.hasPrevious()) {
       //this.tabsService.setActiveTab(this.currentIndex - 1);
@@ -199,7 +161,7 @@ export class RequestBar {
   }
 
   closeCurrentRequest(): void {
-    if (this.totalRequests === 1) {
+    if (this.totalRequests() === 1) {
       // Si es la última request, crear una nueva vacía antes de cerrar
       //this.tabsService.createNewRequest();
     }

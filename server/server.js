@@ -33,7 +33,6 @@ if (!fs.existsSync(DATA_FILE)) {
 // Middleware
 // ====================
 
-
 app.use(express.json());
 
 // ====================
@@ -96,7 +95,7 @@ app.post('/api/collections', (req, res) => {
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
     const collections = JSON.parse(data || '[]');
 
-    const exists = collections.find(c => c.name.toLowerCase() === name.toLowerCase());
+    const exists = collections.find((c) => c.name.toLowerCase() === name.toLowerCase());
     if (exists) {
       return res.status(409).json({ error: 'A collection with that name already exists.' });
     }
@@ -112,6 +111,31 @@ app.post('/api/collections', (req, res) => {
   }
 });
 
+app.put('/api/collections/:collectionId', (req, res) => {
+  const { collectionId } = req.params;
+  const updateData = req.body;
+
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf-8');
+    const collections = JSON.parse(data || '[]');
+
+    const collection = collections.find((c) => c.collectionId === collectionId);
+    if (!collection) {
+      return res.status(404).json({ error: 'Collection not found' });
+    }
+
+    // Update the collection with the provided data
+    Object.assign(collection, updateData);
+
+    fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
+
+    res.status(200).json(collection);
+  } catch (err) {
+    console.error('Error updating collection:', err);
+    res.status(500).json({ error: 'Internal error updating collection' });
+  }
+});
+
 app.post('/api/requests', (req, res) => {
   const newRequest = req.body;
 
@@ -120,7 +144,7 @@ app.post('/api/requests', (req, res) => {
     const collections = JSON.parse(data || '[]');
 
     // We are looking for the collection where this request belongs.
-    const collection = collections.find(c => c.collectionId === newRequest.collectionId);
+    const collection = collections.find((c) => c.collectionId === newRequest.collectionId);
 
     if (!collection) {
       return res.status(404).json({ error: 'Collection not found' });
@@ -152,11 +176,7 @@ app.post('/api/proxy', async (req, res) => {
     });
   }
 
-  console.log(
-    `[${new Date().toISOString()}] ${
-      req.body.method || 'GET'
-    } ${targetUrl}`,
-  );
+  console.log(`[${new Date().toISOString()}] ${req.body.method || 'GET'} ${targetUrl}`);
 
   try {
     const response = await axios({
@@ -220,11 +240,7 @@ app.post('/api/parse-curl', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log('\n🚀 MemOK Proxy Server');
-  console.log(
-    `📍 Server running at http://localhost:${PORT}`,
-  );
-  console.log(
-    `📡 Health check: http://localhost:${PORT}/health`,
-  );
+  console.log(`📍 Server running at http://localhost:${PORT}`);
+  console.log(`📡 Health check: http://localhost:${PORT}/health`);
   console.log('\n✅ Server is ready!\n');
 });

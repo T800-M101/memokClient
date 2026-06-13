@@ -1,8 +1,8 @@
 <aside class="sidebar" id="sidebar">
   <nav class="sidebar-nav" (click)="toggleDrawer()">
-    <div class="new-collection-btn" (click)="modalService.open()" >
-        <i class="fas fa-plus" ></i>
-        <span>New Request</span>
+    <div class="new-collection-btn" (click)="modalService.open()">
+      <i class="fas fa-plus"></i>
+      <span>New Request</span>
     </div>
     <div class="search-field">
       <input type="text" placeholder="Search collection..." (input)="search($event)" class="search-input" />
@@ -17,15 +17,16 @@
       <!-- Collection Header (clickable to expand/collapse) -->
       <div class="collection-header" (click)="toggleCollection(collection.collectionId)">
         <i class="fas fa-chevron-right" [class.expanded]="collection.isExpanded"></i>
-        <i [class]="getFolderIcon(collection.isExpanded)" class="collection-icon"></i>
-        <span class="collection-name">{{ collection.title }}</span>
+        <i [class]="getFolderIcon(collection.isExpanded ?? false)" class="collection-icon"></i>
+        <span class="collection-name">{{ collection.name }}</span>
       </div>
 
       <!-- Request List (collapsible) -->
       <div class="request-list" [class.collapsed]="!collection.isExpanded">
         @for (request of collection.requests; track request.requestId) {
         <button class="request-item" [class.get]="request.method === 'GET'" [class.post]="request.method === 'POST'"
-          [class.put]="request.method === 'PUT'" [class.delete]="request.method === 'DELETE'">
+          [class.put]="request.method === 'PUT'" [class.delete]="request.method === 'DELETE'"
+          (click)="selectRequest(collection.collectionId, request)">
           <span class="method">{{ request.method }}</span>
           <span class="request-name">{{ request.name }}</span>
         </button>
