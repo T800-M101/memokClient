@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, output, signal, input, effect } from '@angular/core';
 import { RequestsService } from '../../core/services/requests-service/requests-service';
 import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../core/services/modal-service/modal-service';
@@ -20,15 +20,22 @@ export class Modal {
   private readonly requestsService = inject(RequestsService);
   private readonly modalService = inject(ModalService);
 
+  // Output para notificar cuando se guarda
+  requestSaved = output<ApiRequest>();
+
   // Exponer signals del servicio
   readonly isOpen = this.modalService.isOpen;
   readonly isClosing = this.modalService.isClosing;
+  readonly requestToEdit = this.modalService.requestToEdit;
 
   // Form fields
   requestName = signal('');
   selectedCollectionId = signal('');
   newCollectionName = signal('');
   collections = this.requestsService.collections;
+
+  // Indica si estamos editando una request existente
+  isEditing = computed(() => !!this.requestToEdit());
 
   // Computed values
   readonly showNewCollectionInput = computed(() => this.selectedCollectionId() === 'new');
@@ -43,66 +50,114 @@ export class Modal {
     return hasName && hasCollection;
   });
 
-  openModal(): void {
-    this.resetForm();
-    this.modalService.open();
+  constructor() {
+    // Effect para cargar datos cuando se abre el modal con una request para editar
+    effect(() => {
+      const request = this.requestToEdit();
+      if (request && this.isOpen()) {
+        this.loadRequestData(request);
+      }
+    });
   }
 
+  /**
+   * Carga los datos de la request a editar
+   */
+  private loadRequestData(request: ApiRequest): void {
+    this.requestName.set(request.name || '');
+    if (request.collectionId) {
+      this.selectedCollectionId.set(request.collectionId);
+    }
+  }
+
+  /**
+   * Cierra el modal
+   */
   closeModal(): void {
+    this.modalService.closeModal();
     this.resetForm();
-    this.modalService.close();
   }
 
-save(): void {
+  /**
+   * Guarda la request (nueva o actualizada)
+   */
+  save(): void {
     if (!this.isValid()) return;
 
-    // 1. If the user chose "new", we must first create the collection
     if (this.showNewCollectionInput()) {
+      // Crear nueva colección primero
       this.requestsService.createCollection(this.newCollectionName(), []).subscribe({
         next: (newCollection) => {
-          // Once created, we create the request using the ID returned by the server
-          this.createRequest(newCollection.collectionId);
+          const requestData = this.buildRequestData(newCollection.collectionId);
+          this.saveRequestToBackend(requestData);
         },
         error: (err) => {
-          console.error('Error al crear colección:', err);
-          alert('No se pudo crear la nueva colección.');
+          console.error('Error creating collection:', err);
+          alert('Could not create new collection.');
         }
       });
     } else {
-      // 2. If it already exists, we use the selected ID directly.
-      this.createRequest(this.selectedCollectionId());
+      // Guardar en colección existente
+      const requestData = this.buildRequestData(this.selectedCollectionId());
+      this.saveRequestToBackend(requestData);
     }
   }
 
-private createRequest(collectionId: string): void {
-  const newRequest: ApiRequest = {
-    requestId: crypto.randomUUID(),
-    collectionId: collectionId,
-    name: this.requestName(),
-    method: 'GET',
-    url: '',
-    params: {},
-    headers: {},
-    auth: { type: 'none' },
-    body: null
-  };
+  /**
+   * Construye el objeto request desde los datos del formulario
+   */
+  private buildRequestData(collectionId: string): ApiRequest {
+    const existing = this.requestToEdit();
 
-  this.requestsService.addRequest(newRequest).subscribe({
-    next: () => {
-      console.log('Request guardada con éxito en el servidor');
-      this.closeModal();
-    },
-    error: (err) => {
-      console.error('Error al guardar request:', err);
-      alert('Error al guardar la petición.');
+    if (existing) {
+      // Actualizar request existente - preservar todos los datos
+      return {
+        ...existing,
+        name: this.requestName(),
+        collectionId: collectionId
+      };
+    } else {
+      // Crear nueva request - valores por defecto
+      return {
+        requestId: crypto.randomUUID(),
+        collectionId: collectionId,
+        name: this.requestName(),
+        method: 'GET',
+        url: '',
+        params: {},
+        headers: {},
+        auth: { type: 'none' },
+        body: null
+      };
     }
-  });
-  this.closeModal();
-}
+  }
 
+  /**
+   * Guarda la request en el backend usando addRequest
+   */
+  private saveRequestToBackend(request: ApiRequest): void {
+    console.log('Saving request to backend:', request);
+
+    this.requestsService.addRequest(request).subscribe({
+      next: (savedRequest: ApiRequest) => {
+        console.log('Request saved successfully:', savedRequest);
+        this.requestSaved.emit(savedRequest);
+        this.closeModal();
+      },
+      error: (err: any) => {
+        console.error('Error saving request:', err);
+        alert(`Error saving the request: ${err.message || 'Unknown error'}`);
+      }
+    });
+  }
+
+  /**
+   * Resetea todos los campos del formulario
+   */
   resetForm(): void {
     this.requestName.set('');
     this.selectedCollectionId.set('');
     this.newCollectionName.set('');
   }
 }
+

@@ -2,6 +2,7 @@ import { Component, computed, HostListener, inject, input, output, signal } from
 import { FormsModule } from '@angular/forms';
 import { RequestsService } from '../../../core/services/requests-service/requests-service';
 import { ApiRequest } from '../../../core/interfaces/api-request.interface';
+import { ModalService } from '../../../core/services/modal-service/modal-service';
 
 @Component({
   selector: 'app-request-bar',
@@ -11,18 +12,25 @@ import { ApiRequest } from '../../../core/interfaces/api-request.interface';
 })
 export class RequestBar {
   private requestsService = inject(RequestsService);
+  private modalService = inject(ModalService);
+  readonly activeRequest = this.requestsService.activeRequest;
+  readonly openRequests = this.requestsService.openRequests;
+  readonly totalRequests = computed(() => this.openRequests().length);
+  readonly hasPrevious = computed(() => this.currentIndex() > 0);
+  readonly hasNext = computed(() => this.currentIndex() < this.totalRequests() - 1);
+
   request = this.requestsService.activeRequest;
   selectedIndex = signal<number>(0);
   isDropdownOpen = false;
   requestData = input<ApiRequest>();
   change = output<Partial<ApiRequest>>();
-  requestName = '';
   method = 'GET';
   url = '';
   isCopied = false;
 
-  readonly activeRequest = this.requestsService.activeRequest;
-  readonly openRequests = this.requestsService.openRequests;
+  get requestName(): string {
+    return this.activeRequest()?.name || '';
+  }
 
   readonly currentIndex = computed(() => {
     const current = this.activeRequest();
@@ -30,10 +38,6 @@ export class RequestBar {
     return this.openRequests().findIndex((r) => r.requestId === current.requestId);
   });
 
-  readonly totalRequests = computed(() => this.openRequests().length);
-
-  readonly hasPrevious = computed(() => this.currentIndex() > 0);
-  readonly hasNext = computed(() => this.currentIndex() < this.totalRequests() - 1);
 
   ngOnInit() {
     if (this.requestData()) {
@@ -51,7 +55,6 @@ export class RequestBar {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  
   onUrlChange(url: string): void {
     this.requestsService.updateActiveRequest({
       url,
@@ -67,7 +70,7 @@ export class RequestBar {
 
   onMethodChange(method: string) {
     this.method = method;
-    //this.change.emit({ method });
+    this.requestsService.updateActiveRequest({ method: method as any });
   }
 
   onRequestNameChange(name: string): void {
@@ -93,15 +96,15 @@ export class RequestBar {
     }
   }
 
-  saveRequest() {
-    console.log('Save request:', {
-      name: this.requestName,
-      method: this.method,
-      url: this.url,
-      headers: this.requestData()?.headers,
-      params: this.requestData()?.params,
-      body: this.requestData()?.body,
-    });
+  saveRequest(): void {
+    const currentRequest = this.activeRequest();
+
+    if (!currentRequest) {
+      console.warn('No active request to save');
+      return;
+    }
+
+    this.modalService.openModal(currentRequest);
   }
 
   async copyAsCurl() {
@@ -139,37 +142,62 @@ export class RequestBar {
 
   navigatePrevious(): void {
     if (this.hasPrevious()) {
-      //this.tabsService.setActiveTab(this.currentIndex - 1);
+      const prevRequest = this.openRequests()[this.currentIndex() - 1];
+      if (prevRequest) {
+        this.requestsService.switchToRequest(prevRequest.requestId);
+      }
     }
   }
 
   navigateNext(): void {
     if (this.hasNext()) {
-      //this.tabsService.setActiveTab(this.currentIndex + 1);
+      const nextRequest = this.openRequests()[this.currentIndex() + 1];
+      if (nextRequest) {
+        this.requestsService.switchToRequest(nextRequest.requestId);
+      }
     }
   }
 
   goToRequest(index: number): void {
-    //this.tabsService.setActiveTab(index);
+    const request = this.openRequests()[index];
+    if (request) {
+      this.requestsService.switchToRequest(request.requestId);
+    }
     this.isDropdownOpen = false;
   }
 
   closeRequest(index: number, event: Event): void {
     event.stopPropagation();
-    //this.tabsService.closeTab(index);
+    const request = this.openRequests()[index];
+    if (request) {
+      this.requestsService.closeRequest(request.requestId);
+    }
     this.isDropdownOpen = false;
   }
 
   closeCurrentRequest(): void {
-    if (this.totalRequests() === 1) {
-      // Si es la última request, crear una nueva vacía antes de cerrar
-      //this.tabsService.createNewRequest();
+    const current = this.activeRequest();
+    if (current) {
+      if (this.totalRequests() === 1) {
+        // If it's the last request, create a new empty one before closing
+        const emptyRequest: ApiRequest = {
+          requestId: crypto.randomUUID(),
+          name: '',
+          method: 'GET',
+          url: '',
+          params: {},
+          headers: {},
+          auth: { type: 'none' },
+          body: null,
+        };
+        this.requestsService.setActiveRequest('', emptyRequest);
+      }
+      this.requestsService.closeRequest(current.requestId);
     }
-    // this.tabsService.closeTab(this.currentIndex);
   }
 
   closeAllRequests(): void {
-    //this.tabsService.closeAllTabs();
+    this.requestsService.closeAllRequests();
     this.isDropdownOpen = false;
   }
 }

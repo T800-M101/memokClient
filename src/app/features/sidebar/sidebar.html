@@ -1,6 +1,6 @@
 <aside class="sidebar" id="sidebar">
   <nav class="sidebar-nav" (click)="toggleDrawer()">
-    <div class="new-collection-btn" (click)="modalService.open()">
+    <div class="new-collection-btn" (click)="modalService.openModal()">
       <i class="fas fa-plus"></i>
       <span>New Request</span>
     </div>
@@ -24,8 +24,12 @@
       <!-- Request List (collapsible) -->
       <div class="request-list" [class.collapsed]="!collection.isExpanded">
         @for (request of collection.requests; track request.requestId) {
-        <button class="request-item" [class.get]="request.method === 'GET'" [class.post]="request.method === 'POST'"
-          [class.put]="request.method === 'PUT'" [class.delete]="request.method === 'DELETE'"
+        <button
+          class="request-item"
+          [class.get]="request.method === 'GET'"
+          [class.post]="request.method === 'POST'"
+          [class.put]="request.method === 'PUT'"
+          [class.delete]="request.method === 'DELETE'"
           (click)="selectRequest(collection.collectionId, request)">
           <span class="method">{{ request.method }}</span>
           <span class="request-name">{{ request.name }}</span>

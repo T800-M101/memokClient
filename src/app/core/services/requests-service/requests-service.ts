@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, tap } from 'rxjs';
 
 import { ApiRequest } from '../../interfaces/api-request.interface';
 import { Collection } from '../../interfaces/collection.interface';
@@ -131,6 +131,28 @@ export class RequestsService {
       tap(() => this.getCollections()) // Refresh collections after adding
     );
   }
+
+/**
+ * Updates an existing request in the backend
+ * @param requestId - The ID of the request to update
+ * @param request - The updated request data
+ */
+updateRequest(requestId: string, request: ApiRequest): Observable<any> {
+  const url = this.getEndpoint(`requests/${requestId}`);
+  console.log('Updating request at URL:', url);
+  console.log('Request data:', request);
+
+  return this.http.put(url, request).pipe(
+    tap(() => {
+      console.log('Request updated successfully');
+      this.getCollections(); // Refresh collections after update
+    }),
+    catchError((error) => {
+      console.error('Error in updateRequest:', error);
+      throw error;
+    })
+  );
+}
 
   // ==========================================================================
   // OPEN REQUESTS MANAGEMENT (Tabs)

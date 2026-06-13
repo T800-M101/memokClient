@@ -89,7 +89,7 @@ app.get('/api/collections', (req, res) => {
 });
 
 app.post('/api/collections', (req, res) => {
-  const { collectionId, name, icon, requests } = req.body;
+  const { collectionId, name, icon, requests, isExpanded } = req.body;
 
   try {
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
@@ -100,7 +100,7 @@ app.post('/api/collections', (req, res) => {
       return res.status(409).json({ error: 'A collection with that name already exists.' });
     }
 
-    const newCollection = { collectionId, name, icon, requests };
+    const newCollection = { collectionId, name, icon, requests, isExpanded };
     collections.push(newCollection);
 
     fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));

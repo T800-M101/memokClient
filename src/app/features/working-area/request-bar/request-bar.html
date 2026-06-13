@@ -3,16 +3,28 @@
   <div class="request-bar-top">
     <!-- Navigation Buttons -->
     <div class="nav-buttons">
-      <button class="nav-btn" (click)="navigatePrevious()" [disabled]="!hasPrevious()" title="Previous request">
+      <button
+        class="nav-btn"
+        (click)="navigatePrevious()"
+        [disabled]="!hasPrevious()"
+        title="Previous request">
         <i class="fas fa-chevron-left"></i>
       </button>
-      <button class="nav-btn" (click)="navigateNext()" [disabled]="!hasNext()" title="Next request">
+
+      <button
+        class="nav-btn"
+        (click)="navigateNext()"
+        [disabled]="!hasNext()"
+        title="Next request">
         <i class="fas fa-chevron-right"></i>
       </button>
 
-      <!-- Dropdown para ver todas las requests -->
+      <!-- Dropdown to see all requests -->
       <div class="requests-dropdown" (click)="$event.stopPropagation()">
-        <button class="request-counter-btn" (click)="toggleDropdown()" [class.open]="isDropdownOpen">
+        <button
+          class="request-counter-btn"
+          (click)="toggleDropdown()"
+          [class.open]="isDropdownOpen">
           <span>{{ currentIndex() + 1 }}</span>
           <span>/</span>
           <span>{{ totalRequests() }}</span>
@@ -23,22 +35,33 @@
         <div class="dropdown-menu">
           <div class="dropdown-header">
             <span>Open Requests ({{ totalRequests() }})</span>
-            <button class="close-all-btn" (click)="closeAllRequests()" title="Close all">
-              <i class="fas fa-times"></i> Close all
+            <button
+              class="close-all-btn"
+              (click)="closeAllRequests()"
+              title="Close all">
+              <i class="fas fa-times"></i>
+               Close all
             </button>
           </div>
           <div class="dropdown-list">
             @for (request of openRequests(); track request.requestId; let i = $index) {
             <div class="dropdown-item" [class.active]="i === currentIndex()" (click)="goToRequest(i)">
               <div class="request-info">
-                <span class="request-method" [class.get]="request.method === 'GET'"
-                  [class.post]="request.method === 'POST'" [class.put]="request.method === 'PUT'"
-                  [class.delete]="request.method === 'DELETE'">
+                <span
+                  class="request-method"
+                  [class.get]="request.method === 'GET'"
+                  [class.post]="request.method === 'POST'"
+                  [class.put]="request.method === 'PUT'"
+                  [class.delete]="request.method === 'DELETE'"
+                  [class.patch]="request.method === 'PATCH'">
                   {{ request.method }}
                 </span>
                 <span class="request-name">{{ request.name }}</span>
               </div>
-              <button class="close-request-btn" (click)="closeRequest(i, $event)" title="Close request">
+              <button
+                class="close-request-btn"
+                (click)="closeRequest(i, $event)"
+                title="Close request">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -68,7 +91,7 @@
         <span>{{ isCopied ? 'Copied!' : 'cURL' }}</span>
       </button>
 
-      <button class="save-req-btn" (click)="saveRequest()" [disabled]="!requestName">
+      <button class="save-req-btn" (click)="saveRequest()" [disabled]="!requestName || requestName.trim() === ''">
         <i class="fas fa-save"></i>
         <span>Save</span>
       </button>
