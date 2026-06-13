@@ -28,6 +28,8 @@ export class RequestsService {
   private readonly _openRequests = signal<ApiRequest[]>([]);
   private readonly _activeRequestId = signal<string | null>(null);
   private readonly _activeCollectionId = signal<string | null>(null);
+  private readonly _activeRequest = signal<ApiRequest | null>(null);
+  readonly activeRequest = this._activeRequest.asReadonly();
 
   // ==========================================================================
   // PRIVATE SIGNALS - HTTP Response State
@@ -64,10 +66,10 @@ export class RequestsService {
   // ==========================================================================
 
   /** Returns the complete active request object or null */
-  readonly activeRequest = computed(() => {
-    const id = this._activeRequestId();
-    return this._openRequests().find(req => req.requestId === id) || null;
-  });
+  // readonly activeRequest = computed(() => {
+  //   const id = this._activeRequestId();
+  //   return this._openRequests().find(req => req.requestId === id) || null;
+  // });
 
   // ==========================================================================
   // PRIVATE UTILITIES
@@ -124,13 +126,24 @@ export class RequestsService {
    * Adds a new request to the backend
    * @param request - The request to save
    */
-  addRequest(request: ApiRequest): Observable<any> {
-    const url = this.getEndpoint('requests');
+addRequest(request: ApiRequest): Observable<ApiRequest> {
+  const url = this.getEndpoint('requests');
 
-    return this.http.post(url, request).pipe(
-      tap(() => this.getCollections()) // Refresh collections after adding
-    );
-  }
+  const requestToSend = {
+    ...request,
+    requestId: request.requestId || ''
+  };
+
+  return this.http.post<ApiRequest>(url, requestToSend).pipe(
+    tap((savedRequest) => {
+      this.getCollections();
+    }),
+    catchError((error) => {
+      console.error('Error in addRequest:', error);
+      throw error;
+    })
+  );
+}
 
 /**
  * Updates an existing request in the backend
@@ -139,12 +152,9 @@ export class RequestsService {
  */
 updateRequest(requestId: string, request: ApiRequest): Observable<any> {
   const url = this.getEndpoint(`requests/${requestId}`);
-  console.log('Updating request at URL:', url);
-  console.log('Request data:', request);
 
   return this.http.put(url, request).pipe(
     tap(() => {
-      console.log('Request updated successfully');
       this.getCollections(); // Refresh collections after update
     }),
     catchError((error) => {
@@ -162,26 +172,39 @@ updateRequest(requestId: string, request: ApiRequest): Observable<any> {
    * Activates a request from a specific collection
    * Opens it as a new tab if not already open
    */
-  setActiveRequest(collectionId: string, request: ApiRequest): void {
-    this._activeCollectionId.set(collectionId);
-
-    const exists = this._openRequests().find(r => r.requestId === request.requestId);
-
-    if (exists) {
-      this._activeRequestId.set(request.requestId);
-    } else {
-      this._openRequests.update(requests => [...requests, request]);
-      this._activeRequestId.set(request.requestId);
-    }
+  setActiveRequestValue(request: ApiRequest | null): void {
+  this._activeRequest.set(request);
+  if (request) {
+    this._activeRequestId.set(request.requestId);
   }
+}
+
+setActiveRequest(collectionId: string, request: ApiRequest): void {
+  this._activeCollectionId.set(collectionId);
+
+  const exists = this._openRequests().find(r => r.requestId === request.requestId);
+
+  if (exists) {
+    this._activeRequestId.set(request.requestId);
+  } else {
+    this._openRequests.update(requests => [...requests, request]);
+    this._activeRequestId.set(request.requestId);
+  }
+
+  // ✅ Actualizar _activeRequest
+  this._activeRequest.set(request);
+}
+
+
 
   /** Switches to an already open request without modifying collections */
-  switchToRequest(requestId: string): void {
-    const request = this._openRequests().find(r => r.requestId === requestId);
-    if (request) {
-      this._activeRequestId.set(requestId);
-    }
+ switchToRequest(requestId: string): void {
+  const request = this._openRequests().find(r => r.requestId === requestId);
+  if (request) {
+    this._activeRequestId.set(requestId);
+    this._activeRequest.set(request);
   }
+}
 
   /** Closes a specific open request */
   closeRequest(requestId: string): void {
@@ -209,27 +232,37 @@ updateRequest(requestId: string, request: ApiRequest): Observable<any> {
   }
 
   /** Updates the active request with partial changes */
-  updateActiveRequest(changes: Partial<ApiRequest>): void {
-    const current = this.activeRequest();
-    if (!current) return;
+/** Updates the active request with partial changes */
+/** Updates the active request with partial changes */
+updateActiveRequest(changes: Partial<ApiRequest>): void {
+  const current = this.activeRequest();
+  if (!current) return;
 
-    // Update in open requests list
-    this._openRequests.update(requests =>
-      requests.map(req =>
-        req.requestId === current.requestId ? { ...req, ...changes } : req
-      )
-    );
+  const hasChanges = Object.keys(changes).some(key => {
+    const currentValue = (current as any)[key];
+    const newValue = (changes as any)[key];
+    return JSON.stringify(currentValue) !== JSON.stringify(newValue);
+  });
 
-    // Update in collections
-    this._collections.update(collections =>
-      collections.map(collection => ({
-        ...collection,
-        requests: collection.requests.map((req: ApiRequest) =>
-          req.requestId === current.requestId ? { ...req, ...changes } : req
-        ),
-      }))
-    );
-  }
+  if (!hasChanges) return;
+  const updatedRequest = { ...current, ...changes };
+
+  this._activeRequest.set(updatedRequest);
+
+  this._openRequests.update(requests =>
+    requests.map(req => req.requestId === current.requestId ? updatedRequest : req)
+  );
+
+  // 4. Update in collections (Memoria)
+  this._collections.update(collections =>
+    collections.map(collection => ({
+      ...collection,
+      requests: collection.requests.map((req: ApiRequest) =>
+        req.requestId === current.requestId ? updatedRequest : req
+      ),
+    }))
+  );
+}
 
   /** Helper to find and update the active collection ID from a request */
   private updateActiveCollectionFromRequest(request: ApiRequest): void {
@@ -266,4 +299,6 @@ updateRequest(requestId: string, request: ApiRequest): Observable<any> {
     this._response.set(null);
     this._error.set(null);
   }
+
+
 }

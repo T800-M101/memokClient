@@ -143,7 +143,6 @@ export class OverlayMenu {
       name: this.environmentName,
       variables: this.variables().filter((v) => v.key.trim() || v.value.trim()),
     };
-    console.log('Saving environment:', envData);
     this.closeEnvironmentsDrawer();
   }
 

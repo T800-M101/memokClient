@@ -143,21 +143,85 @@ app.post('/api/requests', (req, res) => {
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
     const collections = JSON.parse(data || '[]');
 
-    // We are looking for the collection where this request belongs.
     const collection = collections.find((c) => c.collectionId === newRequest.collectionId);
 
     if (!collection) {
       return res.status(404).json({ error: 'Collection not found' });
     }
 
-    collection.requests.push(newRequest);
+    if (!newRequest.requestId || newRequest.requestId === '') {
+      newRequest.requestId = crypto.randomUUID();
+    }
 
-    // We saved the updated file.
+    // Verificar si ya existe (por si es actualización)
+    const existingIndex = collection.requests.findIndex((r) => r.requestId === newRequest.requestId);
+
+    if (existingIndex !== -1) {
+      collection.requests[existingIndex] = newRequest;
+    } else {
+      collection.requests.push(newRequest);
+    }
+
     fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
 
-    res.status(200).json({ message: 'Request added successfully' });
+    res.status(200).json({
+      message: existingIndex !== -1 ? 'Request updated successfully' : 'Request added successfully',
+      request: newRequest
+    });
   } catch (err) {
+    console.error('Error:', err);
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ====================
+// Requests - PUT (Update)
+// ====================
+
+app.put('/api/requests/:requestId', (req, res) => {
+  const { requestId } = req.params;
+  const updateData = req.body;
+
+  console.log(`Updating request ${requestId}:`, updateData);
+
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf-8');
+    const collections = JSON.parse(data || '[]');
+
+    let found = false;
+    let updatedRequest = null;
+
+    for (const collection of collections) {
+      const requestIndex = collection.requests.findIndex((r) => r.requestId === requestId);
+
+      if (requestIndex !== -1) {
+        // Actualizar la request existente
+        const existingRequest = collection.requests[requestIndex];
+        collection.requests[requestIndex] = {
+          ...existingRequest,
+          ...updateData,
+          requestId: requestId // Asegurar que el ID no cambie
+        };
+        found = true;
+        updatedRequest = collection.requests[requestIndex];
+        break;
+      }
+    }
+
+    if (!found) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
+    console.log(`Request ${requestId} updated successfully`);
+
+    res.status(200).json({
+      message: 'Request updated successfully',
+      request: updatedRequest
+    });
+  } catch (err) {
+    console.error('Error updating request:', err);
+    res.status(500).json({ error: 'Internal error updating request' });
   }
 });
 

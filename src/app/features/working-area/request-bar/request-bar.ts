@@ -81,16 +81,10 @@ export class RequestBar {
       auth: current.auth || { type: 'none' },
       body: current.body || null,
     };
-
-    try {
-      console.log('Sending request:', payload);
-    } catch (error) {
-      console.error('Request failed:', error);
-    }
   }
 
   saveRequest(): void {
-    const currentRequest = this.activeRequest();
+    const currentRequest = this.requestsService.activeRequest();
 
     if (!currentRequest) {
       console.warn('No active request to save');

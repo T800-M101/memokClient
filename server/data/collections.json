@@ -1,154 +1,43 @@
 [
   {
-    "collectionId": "c33ac72d-cbde-4a66-904b-7fcf11a179cd",
-    "name": "Dogs",
-    "icon": "fas fa-folder",
-    "requests": [
-      {
-        "requestId": "5885323f-8b7b-485f-94ba-01bafcd074c0",
-        "collectionId": "c33ac72d-cbde-4a66-904b-7fcf11a179cd",
-        "name": "Get all dogs",
-        "method": "GET",
-        "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null
-      }
-    ],
-    "isExpanded": true
-  },
-  {
-    "collectionId": "f42cfa2c-9aba-4620-9853-03838ef9a853",
+    "collectionId": "79cdbb83-f3ef-4786-94a9-4f11517a9ffc",
     "name": "Users",
     "icon": "fas fa-folder",
     "requests": [
       {
-        "requestId": "abea5a15-a394-416f-ace7-3f0f4dbf7edd",
-        "collectionId": "f42cfa2c-9aba-4620-9853-03838ef9a853",
-        "name": "Create a new user",
+        "requestId": "3425b830-f70c-4087-a927-7ec2c30911a5",
+        "collectionId": "79cdbb83-f3ef-4786-94a9-4f11517a9ffc",
+        "name": "Get all users from here",
         "method": "GET",
         "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
+        "params": {
+          "page": "15",
+          "apiKey": "ascdfrt"
         },
-        "body": null
+        "headers": [],
+        "auth": {
+          "type": "none",
+          "token": "",
+          "username": "",
+          "password": ""
+        },
+        "body": "",
+        "isTrusted": true
       },
       {
-        "requestId": "f0adbc24-8d25-4311-9349-c950fcd78846",
-        "collectionId": "f42cfa2c-9aba-4620-9853-03838ef9a853",
-        "name": "Delete user",
-        "method": "DELETE",
+        "requestId": "11473f71-66b6-4918-87ea-f475a1c16dee",
+        "name": "Create user to test the api",
+        "method": "POST",
         "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null
-      }
-    ],
-    "isExpanded": true
-  },
-  {
-    "collectionId": "6d72aa1d-8b14-4128-b27f-e60c50157ca6",
-    "name": "Cats",
-    "icon": "fas fa-folder-open",
-    "requests": [
-      {
-        "requestId": "6b81c4a8-2f53-4d7b-a0da-d281b01bb495",
-        "collectionId": "6d72aa1d-8b14-4128-b27f-e60c50157ca6",
-        "name": "Create a cat",
-        "method": "GET",
-        "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null
-      },
-      {
-        "requestId": "26c5dc04-b844-4c31-bfab-679752337e1e",
-        "collectionId": "6d72aa1d-8b14-4128-b27f-e60c50157ca6",
-        "name": "sdsdsds",
-        "method": "GET",
-        "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null
-      }
-    ],
-    "isExpanded": false
-  },
-  {
-    "collectionId": "09ed16e6-937e-421e-bf67-4f3990ad170d",
-    "name": "Food",
-    "icon": "fas fa-folder-open",
-    "requests": [
-      {
-        "requestId": "c8254d6a-df89-4d86-9fcd-8331b6cbd28f",
-        "collectionId": "09ed16e6-937e-421e-bf67-4f3990ad170d",
-        "name": "Create Food",
-        "method": "GET",
-        "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null
-      }
-    ],
-    "isExpanded": false
-  },
-  {
-    "collectionId": "c2b81941-5a23-41ab-b028-8d6aa48ea7c8",
-    "name": "Tomatoes",
-    "icon": "fas fa-folder",
-    "requests": [
-      {
-        "requestId": "fa9d248a-6507-4baf-8da5-e15d083cfae8",
-        "collectionId": "c2b81941-5a23-41ab-b028-8d6aa48ea7c8",
-        "name": "Create a tomato",
-        "method": "GET",
-        "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null
-      }
-    ],
-    "isExpanded": false
-  },
-  {
-    "collectionId": "5aca3226-1ffe-4bbe-9457-d360870522be",
-    "name": "Cars",
-    "icon": "fas fa-folder",
-    "requests": [
-      {
-        "requestId": "9188505b-84d8-4820-bf3f-311bd2c80a36",
-        "name": "patch a car",
-        "method": "PATCH",
-        "url": "google.com",
         "params": {},
         "headers": {},
         "auth": {
           "type": "none"
         },
         "body": null,
-        "collectionId": "5aca3226-1ffe-4bbe-9457-d360870522be"
+        "collectionId": "79cdbb83-f3ef-4786-94a9-4f11517a9ffc"
       }
     ],
-    "isExpanded": false
+    "isExpanded": true
   }
 ]

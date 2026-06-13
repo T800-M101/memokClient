@@ -121,10 +121,6 @@ export class Sidebar {
     this.onSearch.emit(value);
   }
 
-  onNavigate(route: string): void {
-    console.log('Navigate to:', route);
-  }
-
   selectRequest(collectionId: string, request: ApiRequest): void {
     this.requestsService.setActiveRequest(collectionId, request);
   }

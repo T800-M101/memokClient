@@ -7,7 +7,7 @@
 <div class="new-request-modal" [class.open]="isOpen()" [class.closing]="isClosing()">
   <div class="modal-header">
     <h3>
-      @if (isEditing()) {
+      @if (isEditing) {
         <i class="fas fa-edit"></i>
         Edit Request
       } @else {
@@ -72,7 +72,7 @@
     </button>
     <button class="modal-btn save" (click)="save()" [disabled]="!isValid()">
       <i class="fas fa-save"></i>
-      {{ isEditing() ? 'Update Request' : 'Save Request' }}
+      {{ isEditing ? 'Update Request' : 'Save Request' }}
     </button>
   </div>
 </div>
