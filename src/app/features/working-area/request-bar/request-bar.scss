@@ -598,3 +598,11 @@
     color: #f44336;
   }
 }
+
+
+/* Method Colors for active state */
+.method-btn.active.get-method { background: #00bcd4; color: white; }
+.method-btn.active.post-method { background: #4caf50; color: white; }
+.method-btn.active.put-method { background: #ff9800; color: white; }
+.method-btn.active.delete-method { background: #f44336; color: white; }
+.method-btn.active.patch-method { background: #9c27b0; color: white; }

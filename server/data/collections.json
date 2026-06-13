@@ -37,6 +37,32 @@
           "type": "none"
         },
         "body": null
+      },
+      {
+        "requestId": "f0adbc24-8d25-4311-9349-c950fcd78846",
+        "collectionId": "f42cfa2c-9aba-4620-9853-03838ef9a853",
+        "name": "Delete user",
+        "method": "GET",
+        "url": "",
+        "params": {},
+        "headers": {},
+        "auth": {
+          "type": "none"
+        },
+        "body": null
+      },
+      {
+        "requestId": "f0adbc24-8d25-4311-9349-c950fcd78846",
+        "collectionId": "f42cfa2c-9aba-4620-9853-03838ef9a853",
+        "name": "Delete user",
+        "method": "DELETE",
+        "url": "",
+        "params": {},
+        "headers": {},
+        "auth": {
+          "type": "none"
+        },
+        "body": null
       }
     ],
     "isExpanded": true

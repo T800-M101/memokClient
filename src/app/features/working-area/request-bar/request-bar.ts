@@ -13,24 +13,24 @@ import { ModalService } from '../../../core/services/modal-service/modal-service
 export class RequestBar {
   private requestsService = inject(RequestsService);
   private modalService = inject(ModalService);
+
+  // Signals del servicio
   readonly activeRequest = this.requestsService.activeRequest;
   readonly openRequests = this.requestsService.openRequests;
+
+  // Computed values - estos se actualizan automáticamente cuando cambia activeRequest
   readonly totalRequests = computed(() => this.openRequests().length);
   readonly hasPrevious = computed(() => this.currentIndex() > 0);
   readonly hasNext = computed(() => this.currentIndex() < this.totalRequests() - 1);
 
-  request = this.requestsService.activeRequest;
-  selectedIndex = signal<number>(0);
-  isDropdownOpen = false;
-  requestData = input<ApiRequest>();
-  change = output<Partial<ApiRequest>>();
-  method = 'GET';
-  url = '';
-  isCopied = false;
+  // ✅ Método actual (computed) - se actualiza automáticamente
+  readonly method = computed(() => this.activeRequest()?.method || 'GET');
 
-  get requestName(): string {
-    return this.activeRequest()?.name || '';
-  }
+  // ✅ URL actual (computed)
+  readonly url = computed(() => this.activeRequest()?.url || '');
+
+  // ✅ Request name (computed)
+  readonly requestName = computed(() => this.activeRequest()?.name || '');
 
   readonly currentIndex = computed(() => {
     const current = this.activeRequest();
@@ -38,12 +38,17 @@ export class RequestBar {
     return this.openRequests().findIndex((r) => r.requestId === current.requestId);
   });
 
+  // Estado local del dropdown
+  selectedIndex = signal<number>(0);
+  isDropdownOpen = false;
+  isCopied = false;
+
+  // Input/Output (por si se necesitan)
+  requestData = input<ApiRequest>();
+  change = output<Partial<ApiRequest>>();
 
   ngOnInit() {
-    if (this.requestData()) {
-      this.method = this.requestData()?.method || 'GET';
-      this.url = this.requestData()?.url || '';
-    }
+    // No es necesario sincronizar, los computed signals ya manejan los valores
   }
 
   @HostListener('document:click')
@@ -55,21 +60,12 @@ export class RequestBar {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
+  // ✅ Usar el método updateActiveRequest del servicio
   onUrlChange(url: string): void {
-    this.requestsService.updateActiveRequest({
-      url,
-    });
-  }
-
-  updateActiveRequest(changes: Partial<ApiRequest>): void {
-    const current = this.requestsService.activeRequest();
-    if (!current) return;
-
-    this.requestsService.updateActiveRequest(changes);
+    this.requestsService.updateActiveRequest({ url });
   }
 
   onMethodChange(method: string) {
-    this.method = method;
     this.requestsService.updateActiveRequest({ method: method as any });
   }
 
@@ -78,19 +74,20 @@ export class RequestBar {
   }
 
   async sendRequest() {
-    if (!this.url) return;
+    const current = this.activeRequest();
+    if (!current?.url) return;
 
     const payload = {
-      method: this.method,
-      url: this.url,
-      headers: this.requestData()?.headers || {},
-      params: this.requestData()?.params || {},
-      auth: this.requestData()?.auth || { type: 'none' },
-      body: this.requestData()?.body || null,
+      method: current.method,
+      url: current.url,
+      headers: current.headers || {},
+      params: current.params || {},
+      auth: current.auth || { type: 'none' },
+      body: current.body || null,
     };
 
     try {
-      //await this.requestsService.sendRequest(payload);
+      console.log('Sending request:', payload);
     } catch (error) {
       console.error('Request failed:', error);
     }
@@ -108,25 +105,13 @@ export class RequestBar {
   }
 
   async copyAsCurl() {
-    const curlCommand = this.generateCurlCommand();
+    const current = this.activeRequest();
+    if (!current) return;
 
-    try {
-      await navigator.clipboard.writeText(curlCommand);
-      this.isCopied = true;
+    const headers = current.headers || {};
+    const body = current.body;
 
-      setTimeout(() => {
-        this.isCopied = false;
-      }, 2000);
-    } catch (error) {
-      console.error('Failed to copy:', error);
-    }
-  }
-
-  generateCurlCommand(): string {
-    const headers = this.requestData()?.headers || {};
-    const body = this.requestData()?.body;
-
-    let curl = `curl -X ${this.method} "${this.url}"`;
+    let curl = `curl -X ${current.method} "${current.url}"`;
 
     Object.entries(headers).forEach(([key, value]) => {
       curl += ` \\\n  -H "${key}: ${value}"`;
@@ -137,7 +122,15 @@ export class RequestBar {
       curl += ` \\\n  -d '${bodyStr}'`;
     }
 
-    return curl;
+    try {
+      await navigator.clipboard.writeText(curl);
+      this.isCopied = true;
+      setTimeout(() => {
+        this.isCopied = false;
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
   }
 
   navigatePrevious(): void {
@@ -179,7 +172,6 @@ export class RequestBar {
     const current = this.activeRequest();
     if (current) {
       if (this.totalRequests() === 1) {
-        // If it's the last request, create a new empty one before closing
         const emptyRequest: ApiRequest = {
           requestId: crypto.randomUUID(),
           name: '',
@@ -200,4 +192,5 @@ export class RequestBar {
     this.requestsService.closeAllRequests();
     this.isDropdownOpen = false;
   }
+
 }
