@@ -181,13 +181,46 @@
 }
 
 /* Method Colors for active state */
-.method-btn.active[class*="GET"] { background: #00bcd4; }
-.method-btn.active[class*="POST"] { background: #4caf50; }
-.method-btn.active[class*="PUT"] { background: #ff9800; }
-.method-btn.active[class*="DELETE"] { background: #f44336; }
-.method-btn.active[class*="PATCH"] { background: #9c27b0; }
-.method-btn.active[class*="HEAD"] { background: #607d8b; }
-.method-btn.active[class*="OPTIONS"] { background: #795548; }
+.method-btn.active[class*="GET"] { background: var(--method-get); }
+.method-btn.active[class*="POST"] { background: var(--method-post); }
+.method-btn.active[class*="PUT"] { background: var(--method-put); }
+.method-btn.active[class*="DELETE"] { background: var(--method-delete); }
+.method-btn.active[class*="PATCH"] { background: var(--method-patch); }
+.method-btn.active[class*="HEAD"] { background: var(--method-head); }
+.method-btn.active[class*="OPTIONS"] { background: var(--method-options); }
+
+/* ==========================================================================
+   METHOD BUTTON ACTIVE COLORS WITH HOVER EFFECTS
+   ========================================================================== */
+
+.method-btn.active[class*="GET"] {
+  background: #00bcd4;
+  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+}
+.method-btn.active[class*="POST"] {
+  background: #4caf50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+.method-btn.active[class*="PUT"] {
+  background: #ff9800;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+.method-btn.active[class*="DELETE"] {
+  background: #f44336;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+.method-btn.active[class*="PATCH"] {
+  background: #9c27b0;
+  box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
+}
+.method-btn.active[class*="HEAD"] {
+  background: #607d8b;
+  box-shadow: 0 2px 8px rgba(96, 125, 139, 0.3);
+}
+.method-btn.active[class*="OPTIONS"] {
+  background: #795548;
+  box-shadow: 0 2px 8px rgba(121, 85, 72, 0.3);
+}
 
 /* URL Input */
 .url-container {
@@ -526,9 +559,10 @@
   &.post { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
   &.put { background: rgba(255, 152, 0, 0.15); color: #ff9800; }
   &.delete { background: rgba(244, 67, 54, 0.15); color: #f44336; }
-  &.patch { background: rgba(244, 67, 54, 0.15); color: #9c27b0; }
+  &.patch { background: rgba(156, 39, 176, 0.15); color: #9c27b0; }
   &.head { background: rgba(96, 125, 139, 0.15); color: #607d8b; }
   &.options { background: rgba(121, 85, 72, 0.15); color: #795548; }
+
 }
 
 .request-name {
@@ -585,9 +619,9 @@
   border: none;
   border-radius: 6px;
   color: var(--text-muted, #7f8c8d);
-  cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
+  cursor: pointer;
 
   i {
     font-size: 0.7rem;
@@ -601,6 +635,10 @@
 
 
 /* Method Colors for active state */
+/* ==========================================================================
+   METHOD BUTTON ACTIVE COLORS (with specific classes)
+   ========================================================================== */
+
 .method-btn.active.get-method { background: #00bcd4; color: white; }
 .method-btn.active.post-method { background: #4caf50; color: white; }
 .method-btn.active.put-method { background: #ff9800; color: white; }

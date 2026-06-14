@@ -13,6 +13,10 @@
   --bg-sidebar: #1e1e2f;
   --bg-hover: #2a2a3d;
   --bg-app: #f5f5f5;
+  --bg-soft: #f8f9fa;
+  --border-input: #e0e0e0;
+  --text-main: #2c3e50;
+  --text-placeholder: #adb5bd;
 
   --text-main: #2c3e50;
   --text-muted: #7f8c8d;
@@ -40,6 +44,16 @@
   --topbar-height: 64px;
   --sidebar-width: 280px;
   --sidebar-collapsed-width: 70px;
+
+   /* Methods colors */
+  --method-get: #00bcd4;
+  --method-post: #4caf50;
+  --method-put: #ff9800;
+  --method-delete: #f44336;
+  --method-patch: #9c27b0;
+  --method-head: #607d8b;
+  --method-options: #795548;
+
 }
 
 /* ============================================
@@ -63,4 +77,14 @@ button {
   border: none;
   cursor: pointer;
   font-family: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-soft: #2a2a3d;
+    --bg-card: #1e1e2f;
+    --border-input: #3a3a4d;
+    --text-main: #e0e0e0;
+    --text-placeholder: #6c6c7a;
+  }
 }

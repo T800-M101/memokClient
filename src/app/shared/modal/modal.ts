@@ -21,6 +21,7 @@ export class Modal {
   private readonly requestsService = inject(RequestsService);
   private readonly modalService = inject(ModalService);
   private readonly notificationService = inject(NotificationService);
+  readonly isEditing = computed(() => !!this.originalRequest?.requestId);
 
   // Output
   requestSaved = output<ApiRequest>();
@@ -33,7 +34,9 @@ export class Modal {
   selectedCollectionId = signal('');
   newCollectionName = signal('');
   collections = this.requestsService.collections;
-  isEditing = this.requestsService.activeRequest()?.requestId;
+
+  // ✅ Almacenar la request original para saber si es nueva
+  private originalRequest: ApiRequest | null = null;
 
   readonly showNewCollectionInput = computed(() => this.selectedCollectionId() === 'new');
 
@@ -53,9 +56,11 @@ export class Modal {
       const isOpen = this.isOpen();
 
       if (request && isOpen) {
+        this.originalRequest = request; // ✅ Guardar referencia
         this.loadRequestData(request);
       } else if (!isOpen) {
         this.resetForm();
+        this.originalRequest = null;
       }
     });
   }
@@ -92,9 +97,10 @@ export class Modal {
   }
 
   private buildRequestData(collectionId: string): ApiRequest {
-    const existing = this.requestsService.activeRequest();
+    const existing = this.originalRequest;
 
-    if (existing) {
+    if (existing && existing.requestId) {
+
       return {
         ...existing,
         name: this.requestName(),
@@ -116,9 +122,12 @@ export class Modal {
   }
 
   private saveRequestToBackend(request: ApiRequest): void {
-    const isUpdate = !!this.requestsService.activeRequest()?.requestId;
+    const existsInBackend = this.requestExistsInBackend(request.requestId);
 
-    if (isUpdate) {
+    console.log('Request exists in backend?', existsInBackend);
+    console.log('Request data:', request);
+
+    if (existsInBackend) {
       this.requestsService.updateRequest(request.requestId, request).subscribe({
         next: (response) => {
           this.notificationService.success('Request updated successfully!');
@@ -137,6 +146,15 @@ export class Modal {
         error: (err) => console.error('Error saving request:', err),
       });
     }
+  }
+
+  private requestExistsInBackend(requestId: string): boolean {
+    if (!requestId) return false;
+
+    const collections = this.requestsService.collections();
+    return collections.some(collection =>
+      collection.requests.some(req => req.requestId === requestId)
+    );
   }
 
   resetForm(): void {

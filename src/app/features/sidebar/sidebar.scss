@@ -188,7 +188,7 @@
   transition: all 0.15s ease;
 }
 
-/* Request List Collapsible - ANIMACIÓN MEJORADA */
+/* Request List Collapsible */
 .request-list {
   padding-left: 32px;
   display: flex;
@@ -197,7 +197,7 @@
   margin: 4px 0;
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  max-height: 500px; /* Reducido de 1000px a 500px */
+  max-height: 500px;
   opacity: 1;
 }
 
@@ -205,7 +205,7 @@
   max-height: 0;
   opacity: 0;
   margin: 0;
-  padding: 0; /* Añadido para mejor transición */
+  padding: 0;
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -224,9 +224,9 @@
   border-radius: 8px;
   font-size: 0.85rem;
   color: var(--text-sidebar, #e0e0e0);
-  cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
+  cursor: pointer;
 }
 
 .request-item:hover {
@@ -250,10 +250,13 @@
 }
 
 /* Method Colors */
-.request-item.get .method { color: var(--primary-color, #00bcd4); }
-.request-item.post .method { color: #4caf50; }
-.request-item.put .method { color: #ff9800; }
-.request-item.delete .method { color: #f44336; }
+.request-item.get .method { color: var(--method-get); }
+.request-item.post .method { color: var(--method-post); }
+.request-item.put .method { color: var(--method-put); }
+.request-item.delete .method { color: var(--method-delete); }
+.request-item.patch .method { color: var(--method-patch); }
+.request-item.head .method { color: var(--method-head); }
+.request-item.options .method { color: var(--method-options); }
 
 /* ==========================================================================
    NAV MENU (Help, etc)

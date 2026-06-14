@@ -4,9 +4,7 @@
       @if(activeRequest(); as req){
       <div class="request-page">
         <app-request-bar />
-        <app-config-bar
-          [requestData]="requestsService.activeRequest()"
-          >
+        <app-config-bar [requestData]="requestsService.activeRequest()" >
         </app-config-bar>
         <app-response-section />
       </div>

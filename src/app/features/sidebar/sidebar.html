@@ -15,7 +15,9 @@
     <div class="collection-item">
 
       <!-- Collection Header (clickable to expand/collapse) -->
-      <div class="collection-header" (click)="toggleCollection(collection.collectionId)">
+      <div
+        class="collection-header"
+        (click)="toggleCollection(collection.collectionId)">
         <i class="fas fa-chevron-right" [class.expanded]="collection.isExpanded"></i>
         <i [class]="getFolderIcon(collection.isExpanded ?? false)" class="collection-icon"></i>
         <span class="collection-name">{{ collection.name }}</span>
@@ -30,6 +32,7 @@
           [class.post]="request.method === 'POST'"
           [class.put]="request.method === 'PUT'"
           [class.delete]="request.method === 'DELETE'"
+          [class.patch]="request.method === 'PATCH'"
           (click)="selectRequest(collection.collectionId, request)">
           <span class="method">{{ request.method }}</span>
           <span class="request-name">{{ request.name }}</span>

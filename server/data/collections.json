@@ -8,7 +8,7 @@
         "requestId": "66a9096c-4cb7-467f-b16b-5f0e599769cb",
         "collectionId": "2b0ebe93-5445-4e00-99fe-e1e41169f358",
         "name": "Get all users",
-        "method": "GET",
+        "method": "DELETE",
         "url": "",
         "params": {},
         "headers": {},
@@ -16,6 +16,19 @@
           "type": "none"
         },
         "body": null
+      },
+      {
+        "requestId": "13b4de28-5c4a-4482-b4bd-1f755252e834",
+        "name": "nuevo intento",
+        "method": "PATCH",
+        "url": "",
+        "params": {},
+        "headers": {},
+        "auth": {
+          "type": "none"
+        },
+        "body": null,
+        "collectionId": "2b0ebe93-5445-4e00-99fe-e1e41169f358"
       }
     ],
     "isExpanded": true
