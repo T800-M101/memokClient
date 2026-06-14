@@ -16,13 +16,13 @@ export class Sidebar {
   private readonly http = inject(HttpClient);
   private readonly requestsService = inject(RequestsService);
   private readonly notificationService = inject(NotificationService);
+  modalService = inject(ModalService);
 
   collections = this.requestsService.collections;
   onSelectRequest = output<string>();
   onNewCollection = output<void>();
   onSearch = output<string>();
   searchTerm = signal('');
-  modalService = inject(ModalService);
   isDrawerOpen = signal(false);
   isDrawerClosing = signal(false);
 

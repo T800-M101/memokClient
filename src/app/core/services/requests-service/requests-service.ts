@@ -191,7 +191,6 @@ setActiveRequest(collectionId: string, request: ApiRequest): void {
     this._activeRequestId.set(request.requestId);
   }
 
-  // ✅ Actualizar _activeRequest
   this._activeRequest.set(request);
 }
 

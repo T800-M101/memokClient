@@ -1,3 +1,44 @@
 [
- 
+  {
+    "collectionId": "2b0ebe93-5445-4e00-99fe-e1e41169f358",
+    "name": "Users",
+    "icon": "fas fa-folder",
+    "requests": [
+      {
+        "requestId": "66a9096c-4cb7-467f-b16b-5f0e599769cb",
+        "collectionId": "2b0ebe93-5445-4e00-99fe-e1e41169f358",
+        "name": "Get all users",
+        "method": "GET",
+        "url": "",
+        "params": {},
+        "headers": {},
+        "auth": {
+          "type": "none"
+        },
+        "body": null
+      }
+    ],
+    "isExpanded": true
+  },
+  {
+    "collectionId": "cc49417b-3aa1-489d-a6f8-7988f8847f51",
+    "name": "Dogs",
+    "icon": "fas fa-folder",
+    "requests": [
+      {
+        "requestId": "e1faf254-416b-4c57-a430-8f7febae0081",
+        "collectionId": "cc49417b-3aa1-489d-a6f8-7988f8847f51",
+        "name": "Get all dogs",
+        "method": "GET",
+        "url": "",
+        "params": {},
+        "headers": {},
+        "auth": {
+          "type": "none"
+        },
+        "body": null
+      }
+    ],
+    "isExpanded": true
+  }
 ]
