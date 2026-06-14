@@ -67,72 +67,85 @@ export class RequestBar {
     this.requestsService.updateActiveRequest({ name });
   }
 
-  // async sendRequest() {
-  //   const current = this.activeRequest();
-  //   if (!current?.url) return;
-
-  //   const payload = {
-  //     method: current.method,
-  //     url: current.url,
-  //     headers: current.headers || {},
-  //     params: current.params || {},
-  //     auth: current.auth || { type: 'none' },
-  //     body: current.body || null,
-  //   };
-  // }
 
 
 async sendRequest() {
   const current = this.activeRequest();
   if (!current?.url) return;
 
-  // Show loading state
   //this.isLoading = true;
   this.notificationService.info('Sending request...');
 
-  const payload = {
-    method: current.method,
-    url: current.url,
-    headers: current.headers || {},
-    params: current.params || {},
-    auth: current.auth || { type: 'none' },
-    body: current.body || null,
-  };
-
   // Build URL with query parameters
-  let finalUrl = payload.url;
-  if (payload.params && Object.keys(payload.params).length > 0) {
-    const params = new URLSearchParams(payload.params).toString();
-    finalUrl = `${payload.url}${payload.url.includes('?') ? '&' : '?'}${params}`;
+  let finalUrl = current.url;
+  if (current.params && Object.keys(current.params).length > 0) {
+    const params = new URLSearchParams(current.params).toString();
+    const separator = finalUrl.includes('?') ? '&' : '?';
+    finalUrl = `${finalUrl}${separator}${params}`;
   }
 
-  // Prepare headers (including auth)
-  const headers = { ...payload.headers };
+  // Prepare headers (excluding Content-Type for body handling)
+  const headers: Record<string, string> = {};
 
-  if (payload.auth?.type === 'bearer' && payload.auth.token) {
-    headers['Authorization'] = `Bearer ${payload.auth.token}`;
-  } else if (payload.auth?.type === 'basic' && payload.auth.username && payload.auth.password) {
-    const credentials = btoa(`${payload.auth.username}:${payload.auth.password}`);
+  // Copy existing headers
+  if (current.headers) {
+    Object.entries(current.headers).forEach(([key, value]) => {
+      headers[key] = value;
+    });
+  }
+
+  // Add auth headers if present
+  if (current.auth?.type === 'bearer' && current.auth.token) {
+    headers['Authorization'] = `Bearer ${current.auth.token}`;
+  } else if (current.auth?.type === 'basic' && current.auth.username && current.auth.password) {
+    const credentials = btoa(`${current.auth.username}:${current.auth.password}`);
     headers['Authorization'] = `Basic ${credentials}`;
   }
 
+  // Prepare body
+  let requestBody = null;
+  if (current.body) {
+    // If body is a string, try to parse it, otherwise use as is
+    if (typeof current.body === 'string') {
+      try {
+        requestBody = JSON.parse(current.body);
+        // Ensure Content-Type is set for JSON
+        if (!headers['Content-Type'] && !headers['content-type']) {
+          headers['Content-Type'] = 'application/json';
+        }
+      } catch {
+        // If not valid JSON, send as raw string
+        requestBody = current.body;
+      }
+    } else {
+      requestBody = current.body;
+      if (!headers['Content-Type'] && !headers['content-type']) {
+        headers['Content-Type'] = 'application/json';
+      }
+    }
+  }
+
   const requestPayload = {
-    method: payload.method,
+    method: current.method,
     headers: headers,
-    body: payload.body
+    body: requestBody
   };
+
+  console.log('Sending request:', {
+    url: finalUrl,
+    method: requestPayload.method,
+    headers: requestPayload.headers,
+    body: requestPayload.body
+  });
 
   try {
     const response = await lastValueFrom(
       this.requestsService.sendRequest(finalUrl, requestPayload)
     );
 
-    console.log('Request successful:', response);
+    console.log('Response received:', response);
+    this.requestsService.setResponse(response);
     this.notificationService.success('Request completed successfully!');
-
-    // Store response in the service
-   this.requestsService.setResponse(response);
-
   } catch (error: any) {
     console.error('Request failed:', error);
     this.notificationService.error(`Request failed: ${error.message || 'Unknown error'}`);

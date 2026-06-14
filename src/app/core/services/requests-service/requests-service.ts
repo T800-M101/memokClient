@@ -287,39 +287,52 @@ export class RequestsService {
   // ==========================================================================
 
   /**
-   * Sends an HTTP request through the backend proxy
-   * @param targetUrl - The actual URL to call
-   * @param requestData - The request payload (method, headers, body, etc.)
-   * @returns Observable with the proxy response
-   */
-  sendRequest(
-    targetUrl: string,
-    requestData: {
-      method: string;
-      headers?: Record<string, string>;
-      body?: any;
-    },
-  ): Observable<any> {
-    const url = this.getEndpoint('proxy');
-    const encodedUrl = encodeURIComponent(targetUrl);
-    const fullUrl = `${url}?url=${encodedUrl}`;
-
-    return this.http
-      .post(fullUrl, {
-        method: requestData.method,
-        headers: requestData.headers || {},
-        body: requestData.body || null,
-      })
-      .pipe(
-        tap((response) => {
-          console.log('Proxy response received:', response);
-        }),
-        catchError((error) => {
-          console.error('Proxy request failed:', error);
-          throw error;
-        }),
-      );
+ * Sends an HTTP request through the backend proxy
+ * @param targetUrl - The actual URL to call
+ * @param requestData - The request payload (method, headers, body, etc.)
+ * @returns Observable with the proxy response
+ */
+sendRequest(
+  targetUrl: string,
+  requestData: {
+    method: string;
+    headers?: Record<string, string>;
+    body?: any;
   }
+): Observable<any> {
+  const url = this.getEndpoint('proxy');
+  const encodedUrl = encodeURIComponent(targetUrl);
+  const fullUrl = `${url}?url=${encodedUrl}`;
+
+  // Prepare the body to send to proxy
+  let bodyToSend = requestData.body;
+
+  // If body is an object, stringify it
+  if (bodyToSend && typeof bodyToSend === 'object') {
+    bodyToSend = JSON.stringify(bodyToSend);
+  }
+
+  const proxyPayload = {
+    method: requestData.method,
+    headers: requestData.headers || {},
+    body: bodyToSend || null
+  };
+
+  console.log('Sending to proxy:', {
+    url: fullUrl,
+    payload: proxyPayload
+  });
+
+  return this.http.post(fullUrl, proxyPayload).pipe(
+    tap((response) => {
+      console.log('Proxy response received:', response);
+    }),
+    catchError((error) => {
+      console.error('Proxy request failed:', error);
+      throw error;
+    })
+  );
+}
 
   // ==========================================================================
   // RESPONSE STATE MANAGEMENT

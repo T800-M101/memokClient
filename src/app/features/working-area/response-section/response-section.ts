@@ -10,7 +10,7 @@ import { NgxJsonViewerModule } from 'ngx-json-viewer';
   styleUrl: './response-section.scss',
 })
 export class ResponseSection {
-   private requestsService = inject(RequestsService);
+  private requestsService = inject(RequestsService);
 
   readonly response = this.requestsService.response;
   readonly isLoading = this.requestsService.isLoading;
