@@ -265,12 +265,76 @@ export class ConfigBar {
   // BODY METHODS
   // ==========================================================================
 
-  onBodyInput(event: Event) {
-    const value = (event.target as HTMLTextAreaElement).value;
-    this.configForm.patchValue({
-      body: value,
-    });
+  // onBodyInput(event: Event) {
+  //   const value = (event.target as HTMLTextAreaElement).value;
+  //   this.configForm.patchValue({
+  //     body: value,
+  //   });
+  // }
+  // ==========================================================================
+// BODY METHODS - JSON EDITOR
+// ==========================================================================
+
+onBodyInput(event: Event) {
+  const value = (event.target as HTMLTextAreaElement).value;
+  this.configForm.patchValue({
+    body: value,
+  });
+
+  // Update the service with the new body value
+  if (!this.isUpdating) {
+    this.requestsService.updateActiveRequest({ body: value });
   }
+}
+
+formatJson(): void {
+  const currentBody = this.configForm.get('body')?.value;
+
+  if (!currentBody || currentBody.trim() === '') {
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(currentBody);
+    const formatted = JSON.stringify(parsed, null, 2);
+    this.configForm.patchValue({ body: formatted }, { emitEvent: true });
+
+    // Update the service
+    this.requestsService.updateActiveRequest({ body: formatted });
+  } catch (error) {
+    console.warn('Invalid JSON, cannot format');
+  }
+}
+
+clearJson(): void {
+  this.configForm.patchValue({ body: '' }, { emitEvent: true });
+  this.requestsService.updateActiveRequest({ body: '' });
+}
+
+isValidJson(): boolean {
+  const content = this.configForm.get('body')?.value?.trim() ?? '';
+
+  if (!content) {
+    return true; 
+  }
+
+  try {
+    JSON.parse(content);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+jsonLineCount(): number {
+  const content = this.configForm.get('body')?.value ?? '';
+  return content ? content.split('\n').length : 0;
+}
+
+jsonCharCount(): number {
+  const content = this.configForm.get('body')?.value ?? '';
+  return content ? content.length : 0;
+}
 
   // ==========================================================================
   // PARAM METHODS

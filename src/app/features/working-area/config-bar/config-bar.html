@@ -241,17 +241,64 @@
     }
 
     <!-- Tab Content: Body -->
-    @if (activeTab() === 'body') {
-    <div class="tab-content">
-      <div class="body-editor">
-        <textarea
-          class="body-textarea"
-          placeholder='{"key": "value"}'
-          (input)="onBodyInput($event)"
-          [value]="requestData()?.body || ''" rows="12">
-        </textarea>
+ <!-- Tab Content: Body -->
+@if (activeTab() === 'body') {
+  <div class="tab-content">
+    <div class="body-editor">
+
+      <!-- JSON Editor Panel -->
+      <div class="json-editor-panel">
+
+        <!-- Toolbar -->
+        <div class="json-editor-toolbar">
+          <div class="toolbar-left">
+            <i class="fas fa-code"></i>
+            <span>JSON Editor</span>
+          </div>
+          <div class="toolbar-right">
+            <button type="button" class="json-toolbar-btn" (click)="formatJson()" title="Format JSON">
+              <i class="fas fa-magic"></i>
+              Format
+            </button>
+            <button type="button" class="json-toolbar-btn" (click)="clearJson()" title="Clear">
+              <i class="fas fa-eraser"></i>
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Editor Area -->
+        <div class="json-editor-area" [class.json-invalid]="!isValidJson()">
+          <textarea
+            class="json-textarea"
+            rows="12"
+            [class.text-danger]="!isValidJson()"
+            placeholder='{"key": "value"}'
+            spellcheck="false"
+            (input)="onBodyInput($event)"
+            [value]="requestData()?.body || ''">
+          </textarea>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="json-editor-status">
+          @if (isValidJson()) {
+            <div class="status-left">
+              <span>{{ jsonLineCount() }} lines</span>
+              <span class="separator">·</span>
+              <span>{{ jsonCharCount() }} chars</span>
+            </div>
+          } @else {
+            <div class="status-error">
+              <i class="fas fa-exclamation-circle"></i>
+              Invalid JSON object
+            </div>
+          }
+        </div>
+
       </div>
     </div>
-    }
+  </div>
+}
   </div>
 </div>
