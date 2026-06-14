@@ -2,43 +2,29 @@
   <!-- Tab Headers (siempre visibles, NO se colapsan) -->
   <div class="tab-headers">
 
-    <button
-      class="tab-btn"
-      [class.active]="activeTab() === 'params'"
-      (click)="setActiveTab('params')">
+    <button class="tab-btn" [class.active]="activeTab() === 'params'" (click)="setActiveTab('params')">
       <i class="fas fa-link"></i>
       <span>Params</span>
     </button>
 
-    <button
-      class="tab-btn"
-      [class.active]="activeTab() === 'headers'"
-      (click)="setActiveTab('headers')">
+    <button class="tab-btn" [class.active]="activeTab() === 'headers'" (click)="setActiveTab('headers')">
       <i class="fas fa-heading"></i>
       <span>Headers</span>
     </button>
 
-    <button
-      class="tab-btn"
-      [class.active]="activeTab() === 'auth'"
-      (click)="setActiveTab('auth')">
+    <button class="tab-btn" [class.active]="activeTab() === 'auth'" (click)="setActiveTab('auth')">
       <i class="fas fa-shield-alt"></i>
       <span>Authorization</span>
     </button>
 
-    <button
-      class="tab-btn"
-      [class.active]="activeTab() === 'body'"
-      (click)="setActiveTab('body')">
+    <button class="tab-btn" [class.active]="activeTab() === 'body'" (click)="setActiveTab('body')">
       <i class="fas fa-code"></i>
       <span>Body</span>
     </button>
 
-    <button
-      class="collapse-btn"
-      (click)="toggleCollapse()"
+    <button class="collapse-btn" (click)="toggleCollapse()"
       [title]="isCollapsed() ? 'Expand configuration' : 'Collapse configuration'">
-      <i class="fas" [class.fa-chevron-up]="!isCollapsed()"[class.fa-chevron-down]="isCollapsed()"></i>
+      <i class="fas" [class.fa-chevron-up]="!isCollapsed()" [class.fa-chevron-down]="isCollapsed()"></i>
       <span>{{ isCollapsed() ? 'Show Configuration' : 'Hide Configuration' }}</span>
     </button>
   </div>
@@ -50,9 +36,7 @@
     <div class="tab-content">
       <div class="table-header">
         <h6>Query Parameters</h6>
-        <button
-          class="add-btn"
-          (click)="addParam()">
+        <button class="add-btn" (click)="addParam()">
           <i class="fas fa-plus"></i>
           Add Parameter
         </button>
@@ -70,19 +54,30 @@
               </tr>
             </thead>
             <tbody formArrayName="params">
-              @for (param of paramsArray.controls; track param; let i = $index) {
+              @for (param of paramsArray.controls; track $index; let i = $index) {
               <tr [formGroupName]="i">
                 <td>
-                  <input formControlName="key" placeholder="page" />
+                  <input
+                    formControlName="key"
+                    placeholder="page"
+                    (input)="onParamKeyChange($event, i)" />
                 </td>
                 <td>
-                  <input formControlName="value" placeholder="1" />
+                  <input
+                    formControlName="value" placeholder="1"
+                    (input)="onParamValueChange($event, i)"/>
                 </td>
                 <td>
-                  <input formControlName="description" placeholder="Pagination" />
+                  <input
+                    formControlName="description"
+                    placeholder="Pagination"
+                    (input)="onParamPaginationChange($event, i)" />
                 </td>
                 <td class="action-cell">
-                  <button type="button" class="remove-btn" (click)="removeParam(i)">
+                  <button
+                    type="button"
+                    class="remove-btn"
+                    (click)="removeParam(i)">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </td>
@@ -97,7 +92,9 @@
       <div class="empty-state">
         <i class="fas fa-code-branch"></i>
         <p>No parameters added yet</p>
-        <button class="add-empty-btn" (click)="addParam()">Add Parameter</button>
+        <button
+          class="add-empty-btn"
+          (click)="addParam()">Add Parameter</button>
       </div>
       }
     </div>
@@ -125,16 +122,25 @@
               </tr>
             </thead>
             <tbody formArrayName="headers">
-              @for (header of headersArray.controls; track header; let i = $index) {
+              @for (header of headersArray.controls; track $index; let i = $index) {
               <tr [formGroupName]="i">
                 <td>
-                  <input formControlName="key" placeholder="Content-Type" />
+                  <input
+                    formControlName="key"
+                    placeholder="Content-Type"
+                    (input)="onHeadersKeyChange($event, i)"/>
                 </td>
                 <td>
-                  <input formControlName="value" placeholder="application/json" />
+                  <input
+                    formControlName="value"
+                    placeholder="application/json"
+                    (input)="onHeadersValueChange($event, i)" />
                 </td>
                 <td class="action-cell">
-                  <button type="button" class="remove-btn" (click)="removeHeader(i)">
+                  <button
+                    type="button"
+                    class="remove-btn"
+                    (click)="removeHeader(i)">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </td>
@@ -187,10 +193,17 @@
               Bearer Token
             </label>
             <div class="token-input-wrapper">
-              <input type="password" class="token-input" [type]="showBearerToken() ? 'text' : 'password'"
-                [value]="bearerToken()" (input)="onBearerTokenChange($any($event.target).value)"
-                placeholder="your-token-here" />
-              <button class="toggle-visibility" (click)="toggleBearerVisibility()">
+              <input
+                type="password"
+                  class="token-input"
+                  [type]="showBearerToken() ? 'text' : 'password'"
+                  [value]="bearerToken()"
+                  (input)="onBearerTokenChange($any($event.target).value)"
+                  placeholder="your-token-here" />
+
+              <button
+                class="toggle-visibility"
+                (click)="toggleBearerVisibility()">
                 <i class="fas" [class.fa-eye]="showBearerToken()" [class.fa-eye-slash]="!showBearerToken()"></i>
               </button>
             </div>
@@ -205,13 +218,20 @@
           <div class="basic-section">
             <div class="basic-field">
               <label>Username</label>
-              <input type="text" class="basic-input" [value]="basicUsername()"
-                (input)="onBasicUsernameChange($any($event.target).value)" placeholder="username" />
+              <input
+                type="text" class="basic-input"
+                [value]="basicUsername()"
+                (input)="onBasicUsernameChange($any($event.target).value)"
+                placeholder="username" />
             </div>
             <div class="basic-field">
               <label>Password</label>
-              <input type="password" class="basic-input" [value]="basicPassword()"
-                (input)="onBasicPasswordChange($any($event.target).value)" placeholder="password" />
+              <input
+                type="password"
+                class="basic-input"
+                [value]="basicPassword()"
+                (input)="onBasicPasswordChange($any($event.target).value)"
+                placeholder="password" />
             </div>
           </div>
           }
@@ -224,8 +244,12 @@
     @if (activeTab() === 'body') {
     <div class="tab-content">
       <div class="body-editor">
-        <textarea class="body-textarea" placeholder='{\n  "key": "value"\n}' (input)="onBodyInput($event)"
-          [value]="requestData()?.body || ''" rows="12"></textarea>
+        <textarea
+          class="body-textarea"
+          placeholder='{"key": "value"}'
+          (input)="onBodyInput($event)"
+          [value]="requestData()?.body || ''" rows="12">
+        </textarea>
       </div>
     </div>
     }

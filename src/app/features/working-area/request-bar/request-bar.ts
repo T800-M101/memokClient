@@ -43,9 +43,7 @@ export class RequestBar {
   requestData = input<ApiRequest>();
   change = output<Partial<ApiRequest>>();
 
-  ngOnInit() {
-    // No es necesario sincronizar, los computed signals ya manejan los valores
-  }
+  ngOnInit() {}
 
   @HostListener('document:click')
   closeDropdown() {
@@ -56,7 +54,6 @@ export class RequestBar {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  // ✅ Usar el método updateActiveRequest del servicio
   onUrlChange(url: string): void {
     this.requestsService.updateActiveRequest({ url });
   }

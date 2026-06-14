@@ -20,46 +20,36 @@
         </button>
 
         @if (isDropdownOpen) {
-          <div class="dropdown-menu">
-            <div class="dropdown-header">
-              <span>Open Requests ({{ totalRequests() }})</span>
-              <button class="close-all-btn" (click)="closeAllRequests()">Close all</button>
-            </div>
-            <div class="dropdown-list">
-              @for (request of openRequests(); track request.requestId; let i = $index) {
-                <div class="dropdown-item" [class.active]="i === currentIndex()" (click)="goToRequest(i)">
-                  <div class="request-info">
-                    <span class="request-method"
-                      [class.get]="request.method === 'GET'"
-                      [class.post]="request.method === 'POST'"
-                      [class.put]="request.method === 'PUT'"
-                      [class.delete]="request.method === 'DELETE'"
-                      [class.patch]="request.method === 'PATCH'">
-                      {{ request.method }}
-                    </span>
-                    <span class="request-name">{{ request.name }}</span>
-                  </div>
-                  <button
-                    class="close-request-btn"
-                    (click)="closeRequest(i, $event)"
-                    title="Close request">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              }
-            </div>
+        <div class="dropdown-menu">
+          <div class="dropdown-header">
+            <span>Open Requests ({{ totalRequests() }})</span>
+            <button class="close-all-btn" (click)="closeAllRequests()">Close all</button>
           </div>
+          <div class="dropdown-list">
+            @for (request of openRequests(); track request.requestId; let i = $index) {
+            <div class="dropdown-item" [class.active]="i === currentIndex()" (click)="goToRequest(i)">
+              <div class="request-info">
+                <span class="request-method" [class.get]="request.method === 'GET'"
+                  [class.post]="request.method === 'POST'" [class.put]="request.method === 'PUT'"
+                  [class.delete]="request.method === 'DELETE'" [class.patch]="request.method === 'PATCH'">
+                  {{ request.method }}
+                </span>
+                <span class="request-name">{{ request.name }}</span>
+              </div>
+              <button class="close-request-btn" (click)="closeRequest(i, $event)" title="Close request">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            }
+          </div>
+        </div>
         }
       </div>
     </div>
 
     <!-- Request Name Input -->
     <div class="request-name-container">
-      <input
-        type="text"
-        class="request-name-input"
-        placeholder="Untitled Request"
-        [ngModel]="requestName()"
+      <input type="text" class="request-name-input" placeholder="Untitled Request" [ngModel]="requestName()"
         (ngModelChange)="onRequestNameChange($event)" />
       <button class="close-current-btn" (click)="closeCurrentRequest()" title="Close request">
         <i class="fas fa-times"></i>
@@ -84,52 +74,31 @@
   <div class="request-bar-bottom">
     <!-- Method Selector -->
     <div class="method-selector">
-      <div
-        class="method-btn"
-        [class.active]="method() === 'GET'"
-        [class.get-method]="method() === 'GET'"
+      <div class="method-btn" [class.active]="method() === 'GET'" [class.get-method]="method() === 'GET'"
         (click)="onMethodChange('GET')">
         <span>GET</span>
       </div>
-      <div
-        class="method-btn"
-        [class.active]="method() === 'POST'"
-        [class.post-method]="method() === 'POST'"
+      <div class="method-btn" [class.active]="method() === 'POST'" [class.post-method]="method() === 'POST'"
         (click)="onMethodChange('POST')">
         <span>POST</span>
       </div>
-      <div
-        class="method-btn"
-        [class.active]="method() === 'PUT'"
-        [class.put-method]="method() === 'PUT'"
+      <div class="method-btn" [class.active]="method() === 'PUT'" [class.put-method]="method() === 'PUT'"
         (click)="onMethodChange('PUT')">
         <span>PUT</span>
       </div>
-      <div
-        class="method-btn"
-        [class.active]="method() === 'DELETE'"
-        [class.delete-method]="method() === 'DELETE'"
+      <div class="method-btn" [class.active]="method() === 'DELETE'" [class.delete-method]="method() === 'DELETE'"
         (click)="onMethodChange('DELETE')">
         <span>DELETE</span>
       </div>
-      <div
-        class="method-btn"
-        [class.active]="method() === 'PATCH'"
-
-        (click)="onMethodChange('PATCH')">
+      <div class="method-btn" [class.active]="method() === 'PATCH'" (click)="onMethodChange('PATCH')">
         <span>PATCH</span>
       </div>
     </div>
 
     <!-- URL Input -->
     <div class="url-container">
-      <input
-        type="text"
-        class="url-input"
-        placeholder="https://api.example.com/users"
-        [ngModel]="url()"
-        (ngModelChange)="onUrlChange($event)"
-        (keyup.enter)="sendRequest()" />
+      <input type="text" class="url-input" placeholder="https://api.example.com/users" [ngModel]="url()"
+        (ngModelChange)="onUrlChange($event)" (keyup.enter)="sendRequest()" />
     </div>
 
     <!-- Send Button -->

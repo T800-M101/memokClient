@@ -232,8 +232,6 @@ setActiveRequest(collectionId: string, request: ApiRequest): void {
   }
 
   /** Updates the active request with partial changes */
-/** Updates the active request with partial changes */
-/** Updates the active request with partial changes */
 updateActiveRequest(changes: Partial<ApiRequest>): void {
   const current = this.activeRequest();
   if (!current) return;
