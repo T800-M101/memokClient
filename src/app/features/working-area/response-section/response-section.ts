@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { RequestsService } from '../../../core/services/requests-service/requests-service';
 import { CommonModule, DatePipe } from '@angular/common';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
 
 @Component({
   selector: 'app-response-section',
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, NgxJsonViewerModule],
   templateUrl: './response-section.html',
   styleUrl: './response-section.scss',
 })
@@ -86,8 +87,4 @@ export class ResponseSection {
     this.requestsService.clearResponse();
   }
 
-  prettyPrint(): void {
-    // Alternar entre formato pretty y minificado (opcional)
-    console.log('Pretty print');
-  }
 }

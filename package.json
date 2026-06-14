@@ -33,6 +33,7 @@
     "axios": "^1.17.0",
     "curlconverter": "^4.12.0",
     "express": "^5.2.1",
+    "ngx-json-viewer": "^3.2.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -4,6 +4,7 @@ import { RequestsService } from '../../../core/services/requests-service/request
 import { ApiRequest } from '../../../core/interfaces/api-request.interface';
 import { ModalService } from '../../../core/services/modal-service/modal-service';
 import { NotificationService } from '../../../core/services/notifications/notification-service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-request-bar',
@@ -66,19 +67,79 @@ export class RequestBar {
     this.requestsService.updateActiveRequest({ name });
   }
 
-  async sendRequest() {
-    const current = this.activeRequest();
-    if (!current?.url) return;
+  // async sendRequest() {
+  //   const current = this.activeRequest();
+  //   if (!current?.url) return;
 
-    const payload = {
-      method: current.method,
-      url: current.url,
-      headers: current.headers || {},
-      params: current.params || {},
-      auth: current.auth || { type: 'none' },
-      body: current.body || null,
-    };
+  //   const payload = {
+  //     method: current.method,
+  //     url: current.url,
+  //     headers: current.headers || {},
+  //     params: current.params || {},
+  //     auth: current.auth || { type: 'none' },
+  //     body: current.body || null,
+  //   };
+  // }
+
+
+async sendRequest() {
+  const current = this.activeRequest();
+  if (!current?.url) return;
+
+  // Show loading state
+  //this.isLoading = true;
+  this.notificationService.info('Sending request...');
+
+  const payload = {
+    method: current.method,
+    url: current.url,
+    headers: current.headers || {},
+    params: current.params || {},
+    auth: current.auth || { type: 'none' },
+    body: current.body || null,
+  };
+
+  // Build URL with query parameters
+  let finalUrl = payload.url;
+  if (payload.params && Object.keys(payload.params).length > 0) {
+    const params = new URLSearchParams(payload.params).toString();
+    finalUrl = `${payload.url}${payload.url.includes('?') ? '&' : '?'}${params}`;
   }
+
+  // Prepare headers (including auth)
+  const headers = { ...payload.headers };
+
+  if (payload.auth?.type === 'bearer' && payload.auth.token) {
+    headers['Authorization'] = `Bearer ${payload.auth.token}`;
+  } else if (payload.auth?.type === 'basic' && payload.auth.username && payload.auth.password) {
+    const credentials = btoa(`${payload.auth.username}:${payload.auth.password}`);
+    headers['Authorization'] = `Basic ${credentials}`;
+  }
+
+  const requestPayload = {
+    method: payload.method,
+    headers: headers,
+    body: payload.body
+  };
+
+  try {
+    const response = await lastValueFrom(
+      this.requestsService.sendRequest(finalUrl, requestPayload)
+    );
+
+    console.log('Request successful:', response);
+    this.notificationService.success('Request completed successfully!');
+
+    // Store response in the service
+   this.requestsService.setResponse(response);
+
+  } catch (error: any) {
+    console.error('Request failed:', error);
+    this.notificationService.error(`Request failed: ${error.message || 'Unknown error'}`);
+  } finally {
+    //this.isLoading = false;
+  }
+}
 
   saveRequest(): void {
     const currentRequest = this.requestsService.activeRequest();

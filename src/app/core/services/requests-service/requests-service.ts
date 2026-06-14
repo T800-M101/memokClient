@@ -6,6 +6,10 @@ import { ApiRequest } from '../../interfaces/api-request.interface';
 import { Collection } from '../../interfaces/collection.interface';
 import { ProxyResponse } from '../../interfaces/proxy-response.interface';
 
+// ============================================================================
+// REQUESTS SERVICE
+// ============================================================================
+
 @Injectable({ providedIn: 'root' })
 export class RequestsService {
   // ==========================================================================
@@ -29,7 +33,6 @@ export class RequestsService {
   private readonly _activeRequestId = signal<string | null>(null);
   private readonly _activeCollectionId = signal<string | null>(null);
   private readonly _activeRequest = signal<ApiRequest | null>(null);
-  readonly activeRequest = this._activeRequest.asReadonly();
 
   // ==========================================================================
   // PRIVATE SIGNALS - HTTP Response State
@@ -52,6 +55,7 @@ export class RequestsService {
   readonly openRequests = this._openRequests.asReadonly();
   readonly activeRequestId = this._activeRequestId.asReadonly();
   readonly activeCollectionId = this._activeCollectionId.asReadonly();
+  readonly activeRequest = this._activeRequest.asReadonly();
 
   // ==========================================================================
   // PUBLIC READONLY SIGNALS - HTTP Response State
@@ -60,16 +64,6 @@ export class RequestsService {
   readonly response = this._response.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
-
-  // ==========================================================================
-  // COMPUTED SIGNALS
-  // ==========================================================================
-
-  /** Returns the complete active request object or null */
-  // readonly activeRequest = computed(() => {
-  //   const id = this._activeRequestId();
-  //   return this._openRequests().find(req => req.requestId === id) || null;
-  // });
 
   // ==========================================================================
   // PRIVATE UTILITIES
@@ -109,12 +103,11 @@ export class RequestsService {
       name,
       icon: 'fas fa-folder',
       requests,
-      isExpanded: true
+      isExpanded: true,
     };
 
-
     return this.http.post<Collection>(url, body).pipe(
-      tap(() => this.getCollections()) // Refresh global list after creation
+      tap(() => this.getCollections()), // Refresh global list after creation
     );
   }
 
@@ -126,88 +119,98 @@ export class RequestsService {
    * Adds a new request to the backend
    * @param request - The request to save
    */
-addRequest(request: ApiRequest): Observable<ApiRequest> {
-  const url = this.getEndpoint('requests');
+  addRequest(request: ApiRequest): Observable<ApiRequest> {
+    const url = this.getEndpoint('requests');
 
-  const requestToSend = {
-    ...request,
-    requestId: request.requestId || ''
-  };
+    const requestToSend = {
+      ...request,
+      requestId: request.requestId || '',
+    };
 
-  return this.http.post<ApiRequest>(url, requestToSend).pipe(
-    tap((savedRequest) => {
-      this.getCollections();
-    }),
-    catchError((error) => {
-      console.error('Error in addRequest:', error);
-      throw error;
-    })
-  );
-}
+    return this.http.post<ApiRequest>(url, requestToSend).pipe(
+      tap((savedRequest) => {
+        this.getCollections();
+      }),
+      catchError((error) => {
+        console.error('Error in addRequest:', error);
+        throw error;
+      }),
+    );
+  }
 
-/**
- * Updates an existing request in the backend
- * @param requestId - The ID of the request to update
- * @param request - The updated request data
- */
-updateRequest(requestId: string, request: ApiRequest): Observable<any> {
-  const url = this.getEndpoint(`requests/${requestId}`);
+  /**
+   * Updates an existing request in the backend
+   * @param requestId - The ID of the request to update
+   * @param request - The updated request data
+   */
+  updateRequest(requestId: string, request: ApiRequest): Observable<any> {
+    const url = this.getEndpoint(`requests/${requestId}`);
 
-  return this.http.put(url, request).pipe(
-    tap(() => {
-      this.getCollections(); // Refresh collections after update
-    }),
-    catchError((error) => {
-      console.error('Error in updateRequest:', error);
-      throw error;
-    })
-  );
-}
+    return this.http.put(url, request).pipe(
+      tap(() => {
+        this.getCollections(); // Refresh collections after update
+      }),
+      catchError((error) => {
+        console.error('Error in updateRequest:', error);
+        throw error;
+      }),
+    );
+  }
 
   // ==========================================================================
   // OPEN REQUESTS MANAGEMENT (Tabs)
   // ==========================================================================
 
   /**
-   * Activates a request from a specific collection
-   * Opens it as a new tab if not already open
+   * Sets the active request value directly
+   * @param request - The request to set as active (or null to clear)
    */
   setActiveRequestValue(request: ApiRequest | null): void {
-  this._activeRequest.set(request);
-  if (request) {
-    this._activeRequestId.set(request.requestId);
-  }
-}
-
-setActiveRequest(collectionId: string, request: ApiRequest): void {
-  this._activeCollectionId.set(collectionId);
-
-  const exists = this._openRequests().find(r => r.requestId === request.requestId);
-
-  if (exists) {
-    this._activeRequestId.set(request.requestId);
-  } else {
-    this._openRequests.update(requests => [...requests, request]);
-    this._activeRequestId.set(request.requestId);
+    this._activeRequest.set(request);
+    if (request) {
+      this._activeRequestId.set(request.requestId);
+    }
   }
 
-  this._activeRequest.set(request);
-}
+  /**
+   * Activates a request from a specific collection
+   * Opens it as a new tab if not already open
+   * @param collectionId - The ID of the collection containing the request
+   * @param request - The request to activate
+   */
+  setActiveRequest(collectionId: string, request: ApiRequest): void {
+    this._activeCollectionId.set(collectionId);
 
+    const exists = this._openRequests().find((r) => r.requestId === request.requestId);
 
+    if (exists) {
+      this._activeRequestId.set(request.requestId);
+    } else {
+      this._openRequests.update((requests) => [...requests, request]);
+      this._activeRequestId.set(request.requestId);
+    }
 
-  /** Switches to an already open request without modifying collections */
- switchToRequest(requestId: string): void {
-  const request = this._openRequests().find(r => r.requestId === requestId);
-  if (request) {
-    this._activeRequestId.set(requestId);
     this._activeRequest.set(request);
   }
-}
 
-  /** Closes a specific open request */
+  /**
+   * Switches to an already open request without modifying collections
+   * @param requestId - The ID of the request to switch to
+   */
+  switchToRequest(requestId: string): void {
+    const request = this._openRequests().find((r) => r.requestId === requestId);
+    if (request) {
+      this._activeRequestId.set(requestId);
+      this._activeRequest.set(request);
+    }
+  }
+
+  /**
+   * Closes a specific open request
+   * @param requestId - The ID of the request to close
+   */
   closeRequest(requestId: string): void {
-    this._openRequests.update(requests => requests.filter(r => r.requestId !== requestId));
+    this._openRequests.update((requests) => requests.filter((r) => r.requestId !== requestId));
 
     // If the closed request was active, activate another one
     if (this._activeRequestId() === requestId) {
@@ -223,45 +226,53 @@ setActiveRequest(collectionId: string, request: ApiRequest): void {
     }
   }
 
-  /** Closes all open requests */
+  /**
+   * Closes all open requests
+   */
   closeAllRequests(): void {
     this._openRequests.set([]);
     this._activeRequestId.set(null);
     this._activeCollectionId.set(null);
   }
 
-  /** Updates the active request with partial changes */
-updateActiveRequest(changes: Partial<ApiRequest>): void {
-  const current = this.activeRequest();
-  if (!current) return;
+  /**
+   * Updates the active request with partial changes
+   * @param changes - Partial request data to update
+   */
+  updateActiveRequest(changes: Partial<ApiRequest>): void {
+    const current = this.activeRequest();
+    if (!current) return;
 
-  const hasChanges = Object.keys(changes).some(key => {
-    const currentValue = (current as any)[key];
-    const newValue = (changes as any)[key];
-    return JSON.stringify(currentValue) !== JSON.stringify(newValue);
-  });
+    const hasChanges = Object.keys(changes).some((key) => {
+      const currentValue = (current as any)[key];
+      const newValue = (changes as any)[key];
+      return JSON.stringify(currentValue) !== JSON.stringify(newValue);
+    });
 
-  if (!hasChanges) return;
-  const updatedRequest = { ...current, ...changes };
+    if (!hasChanges) return;
+    const updatedRequest = { ...current, ...changes };
 
-  this._activeRequest.set(updatedRequest);
+    this._activeRequest.set(updatedRequest);
 
-  this._openRequests.update(requests =>
-    requests.map(req => req.requestId === current.requestId ? updatedRequest : req)
-  );
+    this._openRequests.update((requests) =>
+      requests.map((req) => (req.requestId === current.requestId ? updatedRequest : req)),
+    );
 
-  // 4. Update in collections (Memoria)
-  this._collections.update(collections =>
-    collections.map(collection => ({
-      ...collection,
-      requests: collection.requests.map((req: ApiRequest) =>
-        req.requestId === current.requestId ? updatedRequest : req
-      ),
-    }))
-  );
-}
+    // Update in collections (Memory)
+    this._collections.update((collections) =>
+      collections.map((collection) => ({
+        ...collection,
+        requests: collection.requests.map((req: ApiRequest) =>
+          req.requestId === current.requestId ? updatedRequest : req,
+        ),
+      })),
+    );
+  }
 
-  /** Helper to find and update the active collection ID from a request */
+  /**
+   * Helper to find and update the active collection ID from a request
+   * @param request - The request to find the collection for
+   */
   private updateActiveCollectionFromRequest(request: ApiRequest): void {
     for (const collection of this._collections()) {
       if (collection.requests.some((req: ApiRequest) => req.requestId === request.requestId)) {
@@ -279,23 +290,54 @@ updateActiveRequest(changes: Partial<ApiRequest>): void {
    * Sends an HTTP request through the backend proxy
    * @param targetUrl - The actual URL to call
    * @param requestData - The request payload (method, headers, body, etc.)
+   * @returns Observable with the proxy response
    */
-  sendRequest(targetUrl: string, requestData: any): void {
+  sendRequest(
+    targetUrl: string,
+    requestData: {
+      method: string;
+      headers?: Record<string, string>;
+      body?: any;
+    },
+  ): Observable<any> {
     const url = this.getEndpoint('proxy');
     const encodedUrl = encodeURIComponent(targetUrl);
+    const fullUrl = `${url}?url=${encodedUrl}`;
 
-    // this.http.post(`${url}?url=${encodedUrl}`, requestData)...
+    return this.http
+      .post(fullUrl, {
+        method: requestData.method,
+        headers: requestData.headers || {},
+        body: requestData.body || null,
+      })
+      .pipe(
+        tap((response) => {
+          console.log('Proxy response received:', response);
+        }),
+        catchError((error) => {
+          console.error('Proxy request failed:', error);
+          throw error;
+        }),
+      );
   }
 
   // ==========================================================================
   // RESPONSE STATE MANAGEMENT
   // ==========================================================================
 
-  /** Clears the current response and any errors */
+  /**
+   * Sets the response data
+   * @param response - The response data to store
+   */
+  setResponse(response: any): void {
+    this._response.set(response);
+  }
+
+  /**
+   * Clears the current response and any errors
+   */
   clearResponse(): void {
     this._response.set(null);
     this._error.set(null);
   }
-
-
 }
