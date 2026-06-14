@@ -152,34 +152,54 @@ async sendRequest() {
     this.modalService.openModal(currentRequest);
   }
 
-  async copyAsCurl() {
-    const current = this.activeRequest();
-    if (!current) return;
+ async copyAsCurl() {
+  const current = this.activeRequest();
+  if (!current) return;
 
-    const headers = current.headers || {};
-    const body = current.body;
-
-    let curl = `curl -X ${current.method} "${current.url}"`;
-
-    Object.entries(headers).forEach(([key, value]) => {
-      curl += ` \\\n  -H "${key}: ${value}"`;
-    });
-
-    if (body) {
-      const bodyStr = typeof body === 'string' ? body : JSON.stringify(body);
-      curl += ` \\\n  -d '${bodyStr}'`;
-    }
-
-    try {
-      await navigator.clipboard.writeText(curl);
-      this.isCopied = true;
-      setTimeout(() => {
-        this.isCopied = false;
-      }, 2000);
-    } catch (error) {
-      console.error('Failed to copy:', error);
-    }
+  // Build URL with query parameters
+  let fullUrl = current.url;
+  if (current.params && Object.keys(current.params).length > 0) {
+    const params = new URLSearchParams(current.params).toString();
+    const separator = fullUrl.includes('?') ? '&' : '?';
+    fullUrl = `${fullUrl}${separator}${params}`;
   }
+
+  const headers = current.headers || {};
+  const body = current.body;
+
+  // Start building curl command
+  let curl = `curl -X ${current.method} "${fullUrl}"`;
+
+  // Add headers
+  Object.entries(headers).forEach(([key, value]) => {
+    // Escape double quotes in header values
+    const escapedValue = value.replace(/"/g, '\\"');
+    curl += ` \\\n  -H "${key}: ${escapedValue}"`;
+  });
+
+  // Add body for methods that support it
+  if (body && (current.method === 'POST' || current.method === 'PUT' || current.method === 'PATCH')) {
+    let bodyStr = typeof body === 'string' ? body : JSON.stringify(body);
+    // Escape single quotes in body
+    bodyStr = bodyStr.replace(/'/g, "'\\''");
+    curl += ` \\\n  -d '${bodyStr}'`;
+  }
+
+  // Add content-type header if body is present and not already specified
+  if (body && !headers['Content-Type'] && !headers['content-type']) {
+    curl += ` \\\n  -H "Content-Type: application/json"`;
+  }
+
+  try {
+    await navigator.clipboard.writeText(curl);
+    this.isCopied = true;
+    setTimeout(() => {
+      this.isCopied = false;
+    }, 2000);
+  } catch (error) {
+    console.error('Failed to copy:', error);
+  }
+}
 
   navigatePrevious(): void {
     if (this.hasPrevious()) {
