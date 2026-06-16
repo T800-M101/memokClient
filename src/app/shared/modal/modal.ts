@@ -1,165 +1,141 @@
-import { Component, computed, inject, output, signal, effect } from '@angular/core';
-import { RequestsService } from '../../core/services/requests-service/requests-service';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ModalService } from '../../core/services/modal-service/modal-service';
-import { ApiRequest } from '../../core/interfaces/api-request.interface';
-import { NotificationService } from '../../core/services/notifications/notification-service';
 
-export interface NewRequestData {
-  name: string;
-  collectionId: string;
-  newCollectionName: string;
-}
+import { RequestsService } from '../../core/services/requests-service/requests-service';
+import { ModalService } from '../../core/services/modal-service/modal-service';
+import { NotificationService } from '../../core/services/notifications/notification-service';
+import { ApiRequest } from '../../core/interfaces/api-request.interface';
 
 @Component({
   selector: 'app-modal',
+  standalone: true,
   imports: [FormsModule],
   templateUrl: './modal.html',
   styleUrl: './modal.scss',
 })
 export class Modal {
   private readonly requestsService = inject(RequestsService);
-  private readonly modalService = inject(ModalService);
   private readonly notificationService = inject(NotificationService);
-  readonly isEditing = computed(() => !!this.originalRequest?.requestId);
+  readonly modalService = inject(ModalService);
+  readonly collections = this.requestsService.collections;
+  readonly showNewCollectionInput = computed(
+    () => this.modalService.selectedCollectionId() === 'new',
+  );
 
-  // Output
-  requestSaved = output<ApiRequest>();
+  isValid(): boolean {
+    return this.modalService.isValid();
+  }
 
-  readonly isOpen = this.modalService.isOpen;
-  readonly isClosing = this.modalService.isClosing;
+  save(): void {
+    const currentRequest = this.modalService.workableRequest();
 
-  // Form fields
-  requestName = signal('');
-  selectedCollectionId = signal('');
-  newCollectionName = signal('');
-  collections = this.requestsService.collections;
-
-  // ✅ Almacenar la request original para saber si es nueva
-  private originalRequest: ApiRequest | null = null;
-
-  readonly showNewCollectionInput = computed(() => this.selectedCollectionId() === 'new');
-
-  readonly isValid = computed(() => {
-    const hasName = this.requestName().trim().length > 0;
-    const hasCollection = this.selectedCollectionId() !== '';
-
-    if (this.showNewCollectionInput()) {
-      return hasName && this.newCollectionName().trim().length > 0;
+    if (!currentRequest || !this.isValid()) {
+      return;
     }
-    return hasName && hasCollection;
-  });
 
-  constructor() {
-    effect(() => {
-      const request = this.requestsService.activeRequest();
-      const isOpen = this.isOpen();
+    const collectionId = this.getTargetCollectionId();
 
-      if (request && isOpen) {
-        this.originalRequest = request; // ✅ Guardar referencia
-        this.loadRequestData(request);
-      } else if (!isOpen) {
-        this.resetForm();
-        this.originalRequest = null;
-      }
+    if (this.modalService.isEditing()) {
+      this.updateRequestInCollection(currentRequest, collectionId);
+    } else {
+      this.saveNewRequestToCollection(currentRequest, collectionId);
+    }
+  }
+
+  private getTargetCollectionId(): string {
+    if (this.modalService.selectedCollectionId() === 'new') {
+      return crypto.randomUUID();
+    }
+
+    return this.modalService.selectedCollectionId();
+  }
+
+  private saveNewRequestToCollection(currentRequest: ApiRequest, collectionId: string): void {
+    const requestToSave: ApiRequest = {
+      ...currentRequest,
+      collectionId,
+      requestId: currentRequest.requestId.startsWith('temp-')
+        ? crypto.randomUUID()
+        : currentRequest.requestId,
+    };
+
+    this.requestsService
+      .addRequestToCollection(collectionId, requestToSave, this.modalService.newCollectionName())
+      .subscribe({
+        next: (savedRequest) => {
+          console.log('Request saved successfully:', savedRequest);
+          this.notificationService.show('Request saved successfully');
+
+          if (this.requestsService.activeRequest()?.requestId === currentRequest.requestId) {
+            this.requestsService.updateActiveRequest(savedRequest);
+          }
+
+          this.closeModal();
+        },
+        error: (error) => {
+          console.error('Error saving request:', error);
+          this.notificationService.error('Error saving request');
+        },
+      });
+  }
+
+  private updateRequestInCollection(currentRequest: ApiRequest, collectionId: string): void {
+    const currentCollection = this.requestsService
+      .collections()
+      .find((col) => col.requests.some((req) => req.requestId === currentRequest.requestId));
+
+    if (currentCollection && currentCollection.collectionId !== collectionId) {
+      this.moveRequestToCollection(currentRequest, currentCollection.collectionId, collectionId);
+      return;
+    }
+
+    const updatedRequest: ApiRequest = {
+      ...currentRequest,
+      collectionId,
+    };
+
+    this.requestsService.updateRequest(currentRequest.requestId, updatedRequest).subscribe({
+      next: () => {
+        console.log('Request updated successfully');
+        this.notificationService.show('Request updated successfully');
+
+        this.closeModal();
+      },
+      error: (error) => {
+        console.error('Error updating request:', error);
+        this.notificationService.error('Error updating request');
+      },
     });
   }
 
-  private loadRequestData(request: ApiRequest): void {
-    this.requestName.set(request.name || '');
-    if (request.collectionId) {
-      this.selectedCollectionId.set(request.collectionId);
-    }
+  private moveRequestToCollection(
+    request: ApiRequest,
+    fromCollectionId: string,
+    toCollectionId: string,
+  ): void {
+    this.requestsService.moveRequest(request, fromCollectionId, toCollectionId).subscribe({
+      next: () => {
+        console.log('Request moved successfully');
+        this.notificationService.show('Request moved successfully');
+        this.closeModal();
+      },
+      error: (error) => {
+        console.error('Error moving request:', error);
+        this.notificationService.error('Error moving request');
+      },
+    });
   }
 
   closeModal(): void {
     this.modalService.closeModal();
   }
 
-  save(): void {
-    if (!this.isValid()) return;
-
-    if (this.showNewCollectionInput()) {
-      this.requestsService.createCollection(this.newCollectionName(), []).subscribe({
-        next: (newCollection) => {
-          const requestData = this.buildRequestData(newCollection.collectionId);
-          this.saveRequestToBackend(requestData);
-        },
-        error: (err) => {
-          console.error('Error creating collection:', err);
-          this.notificationService.error(`Error: ${err.message || 'Unknown error'}`);
-        },
-      });
-    } else {
-      const requestData = this.buildRequestData(this.selectedCollectionId());
-      this.saveRequestToBackend(requestData);
-    }
+  // ngModel helpers
+  updateSelectedCollectionId(value: string): void {
+    this.modalService.updateSelectedCollectionId(value);
   }
 
-  private buildRequestData(collectionId: string): ApiRequest {
-    const existing = this.originalRequest;
-
-    if (existing && existing.requestId) {
-
-      return {
-        ...existing,
-        name: this.requestName(),
-        collectionId: collectionId,
-      };
-    } else {
-      return {
-        requestId: '',
-        collectionId: collectionId,
-        name: this.requestName(),
-        method: 'GET',
-        url: '',
-        params: {},
-        headers: {},
-        auth: { type: 'none' },
-        body: null,
-      };
-    }
-  }
-
-  private saveRequestToBackend(request: ApiRequest): void {
-    const existsInBackend = this.requestExistsInBackend(request.requestId);
-
-    console.log('Request exists in backend?', existsInBackend);
-    console.log('Request data:', request);
-
-    if (existsInBackend) {
-      this.requestsService.updateRequest(request.requestId, request).subscribe({
-        next: (response) => {
-          this.notificationService.success('Request updated successfully!');
-          this.requestSaved.emit(request);
-          this.closeModal();
-        },
-        error: (err) => console.error('Error updating request:', err),
-      });
-    } else {
-      this.requestsService.addRequest(request).subscribe({
-        next: (savedRequest: ApiRequest) => {
-          this.notificationService.success('Request saved successfully!');
-          this.requestSaved.emit(savedRequest);
-          this.closeModal();
-        },
-        error: (err) => console.error('Error saving request:', err),
-      });
-    }
-  }
-
-  private requestExistsInBackend(requestId: string): boolean {
-    if (!requestId) return false;
-
-    const collections = this.requestsService.collections();
-    return collections.some(collection =>
-      collection.requests.some(req => req.requestId === requestId)
-    );
-  }
-
-  resetForm(): void {
-    this.requestName.set('');
-    this.selectedCollectionId.set('');
-    this.newCollectionName.set('');
+  updateNewCollectionName(value: string): void {
+    this.modalService.updateNewCollectionName(value);
   }
 }

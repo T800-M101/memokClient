@@ -14,7 +14,7 @@ import { NotificationService } from '../../core/services/notifications/notificat
 })
 export class Sidebar {
   private readonly http = inject(HttpClient);
-  private readonly requestsService = inject(RequestsService);
+  requestsService = inject(RequestsService);
   private readonly notificationService = inject(NotificationService);
   modalService = inject(ModalService);
 
@@ -107,19 +107,7 @@ export class Sidebar {
     }
   }
 
-  onSelectRequestFromSidebar(requestId: string): void {
-    this.onSelectRequest.emit(requestId);
-  }
 
-  onNewCollectionClick(): void {
-    this.onNewCollection.emit();
-  }
-
-  onSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchTerm.set(value);
-    this.onSearch.emit(value);
-  }
 
   selectRequest(collectionId: string, request: ApiRequest): void {
     this.requestsService.setActiveRequest(collectionId, request);

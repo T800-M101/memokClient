@@ -315,7 +315,7 @@ isValidJson(): boolean {
   const content = this.configForm.get('body')?.value?.trim() ?? '';
 
   if (!content) {
-    return true; 
+    return true;
   }
 
   try {

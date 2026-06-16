@@ -41,30 +41,4 @@ export class OverlayMenuService {
     this._isMenuOpen.set(false);
   }
 
-  show(): void {
-    this.openMenu();
-  }
-
-  hide(): void {
-    this.closeMenu();
-  }
-
-  importCurl(): void {
-    console.log('Import cURL clicked');
-    // Aquí puedes agregar la lógica para abrir el modal de importación
-    this.closeMenu();
-  }
-
-  isOpen(): boolean {
-    return this._isMenuOpen();
-  }
-
-  isClosed(): boolean {
-    return !this._isMenuOpen();
-  }
-
-  reset(): void {
-    this._isClosing.set(false);
-    this._isMenuOpen.set(false);
-  }
 }

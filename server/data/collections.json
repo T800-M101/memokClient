@@ -1,14 +1,14 @@
 [
   {
-    "collectionId": "2b0ebe93-5445-4e00-99fe-e1e41169f358",
+    "collectionId": "e9d94af5-092e-42f5-a9f5-0b662737f50d",
     "name": "Users",
     "icon": "fas fa-folder",
     "requests": [
       {
-        "requestId": "66a9096c-4cb7-467f-b16b-5f0e599769cb",
-        "collectionId": "2b0ebe93-5445-4e00-99fe-e1e41169f358",
+        "requestId": "4c1ac592-9230-4856-aeaa-e42c9309fc3a",
+        "collectionId": "e9d94af5-092e-42f5-a9f5-0b662737f50d",
         "name": "Get all users",
-        "method": "DELETE",
+        "method": "GET",
         "url": "",
         "params": {},
         "headers": {},
@@ -18,31 +18,10 @@
         "body": null
       },
       {
-        "requestId": "13b4de28-5c4a-4482-b4bd-1f755252e834",
-        "name": "nuevo intento",
-        "method": "PATCH",
-        "url": "",
-        "params": {},
-        "headers": {},
-        "auth": {
-          "type": "none"
-        },
-        "body": null,
-        "collectionId": "2b0ebe93-5445-4e00-99fe-e1e41169f358"
-      }
-    ],
-    "isExpanded": true
-  },
-  {
-    "collectionId": "cc49417b-3aa1-489d-a6f8-7988f8847f51",
-    "name": "Dogs",
-    "icon": "fas fa-folder",
-    "requests": [
-      {
-        "requestId": "e1faf254-416b-4c57-a430-8f7febae0081",
-        "collectionId": "cc49417b-3aa1-489d-a6f8-7988f8847f51",
-        "name": "Get all dogs",
-        "method": "GET",
+        "requestId": "7adf220f-e462-49ca-9d9e-ffce14dd6bd4",
+        "collectionId": "e9d94af5-092e-42f5-a9f5-0b662737f50d",
+        "name": "Remove user",
+        "method": "DELETE",
         "url": "",
         "params": {},
         "headers": {},

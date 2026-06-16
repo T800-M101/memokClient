@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable, tap } from 'rxjs';
+import { catchError, map, Observable, tap } from 'rxjs';
 
 import { ApiRequest } from '../../interfaces/api-request.interface';
 import { Collection } from '../../interfaces/collection.interface';
@@ -117,17 +117,24 @@ export class RequestsService {
 
   /**
    * Adds a new request to the backend
-   * @param request - The request to save
    */
-  addRequest(request: ApiRequest): Observable<ApiRequest> {
+  addRequest(): Observable<ApiRequest> {
     const url = this.getEndpoint('requests');
 
-    const requestToSend = {
-      ...request,
-      requestId: request.requestId || '',
+      const newRequest: Partial<ApiRequest> = {
+        requestId: null as any,
+        name: '',
+        method: 'GET',
+        url: '',
+        params: {},
+        headers: {},
+        auth: {
+            type: 'none'
+        },
+        body: null
     };
 
-    return this.http.post<ApiRequest>(url, requestToSend).pipe(
+    return this.http.post<ApiRequest>(url, newRequest).pipe(
       tap((savedRequest) => {
         this.getCollections();
       }),
@@ -353,4 +360,180 @@ sendRequest(
     this._response.set(null);
     this._error.set(null);
   }
+
+  /**
+ * Creates a new request locally without saving to backend
+ * @param collectionId - Optional collection ID to associate with
+ * @returns The newly created local request
+ */
+createLocalRequest(collectionId?: string): void {
+  const newRequest: ApiRequest = {
+    requestId: `temp-${crypto.randomUUID()}`, // Generate a temporary local ID
+    collectionId: collectionId,
+    name: '',
+    method: 'GET',
+    url: '',
+    params: {},
+    headers: {},
+    auth: {
+      type: 'none'
+    },
+    body: null
+  };
+
+  // Add to open requests
+  this._openRequests.update((requests) => [...requests, newRequest]);
+
+  // Set as active
+  this._activeRequestId.set(newRequest.requestId);
+  this._activeRequest.set(newRequest);
+
+  if (collectionId) {
+    this._activeCollectionId.set(collectionId);
+  }
+
+  this.setActiveRequestValue(newRequest);
+}
+
+/**
+ * Guarda una nueva request directamente en una colección
+ * Si la colección no existe, la crea con el nombre proporcionado
+ */
+addRequestToCollection(collectionId: string, request: ApiRequest, newCollectionName?: string): Observable<ApiRequest> {
+  // Buscar la colección actual
+  let collection = this._collections().find(c => c.collectionId === collectionId);
+
+  // Crear la request con el collectionId asignado
+  const requestWithCollection = {
+    ...request,
+    collectionId: collectionId,
+    // Si es una request temporal, generar un ID real
+    requestId: request.requestId.startsWith('temp-') ? crypto.randomUUID() : request.requestId
+  };
+
+  // Si no existe la colección, crearla primero
+  if (!collection) {
+    const collectionName = newCollectionName || `Collection ${collectionId.substring(0, 8)}`;
+    console.log(`Creating new collection: ${collectionName} with id ${collectionId}`);
+
+    const newCollection: Collection = {
+      collectionId: collectionId,
+      name: collectionName, // Usar el nombre proporcionado
+      icon: 'fas fa-folder',
+      requests: [requestWithCollection],
+      isExpanded: true
+    };
+
+    // Crear la colección en el backend
+    const createUrl = this.getEndpoint('collections');
+
+    return this.http.post<Collection>(createUrl, newCollection).pipe(
+      map((savedCollection) => {
+        // Actualizar colecciones en memoria
+        this._collections.update(collections => [...collections, savedCollection]);
+
+        // Actualizar openRequests
+        this._openRequests.update(requests =>
+          requests.map(req =>
+            req.requestId === request.requestId ? requestWithCollection : req
+          )
+        );
+
+        // Actualizar activeRequest si es necesario
+        if (this._activeRequest()?.requestId === request.requestId) {
+          this._activeRequest.set(requestWithCollection);
+          this._activeRequestId.set(requestWithCollection.requestId);
+        }
+
+        this.getCollections(); // Refrescar
+        return requestWithCollection;
+      }),
+      catchError((error) => {
+        console.error('Error creating collection and request:', error);
+        throw error;
+      })
+    );
+  }
+
+  // Si la colección existe, agregar la request
+  const updatedCollection = {
+    ...collection,
+    requests: [...collection.requests, requestWithCollection]
+  };
+
+  const url = this.getEndpoint(`collections/${collectionId}`);
+
+  return this.http.put<Collection>(url, updatedCollection).pipe(
+    map((savedCollection) => {
+      const savedRequest = savedCollection.requests.find(r => r.requestId === requestWithCollection.requestId);
+
+      if (!savedRequest) {
+        throw new Error('Request not found in saved collection');
+      }
+
+      // Actualizar la colección en memoria
+      this._collections.update(collections =>
+        collections.map(col =>
+          col.collectionId === collectionId ? savedCollection : col
+        )
+      );
+
+      // Actualizar openRequests
+      this._openRequests.update(requests =>
+        requests.map(req =>
+          req.requestId === request.requestId ? savedRequest : req
+        )
+      );
+
+      // Actualizar activeRequest
+      if (this._activeRequest()?.requestId === request.requestId) {
+        this._activeRequest.set(savedRequest);
+        this._activeRequestId.set(savedRequest.requestId);
+      }
+
+      this.getCollections();
+      return savedRequest;
+    }),
+    catchError((error) => {
+      console.error('Error adding request to collection:', error);
+      throw error;
+    })
+  );
+}
+
+/**
+ * Guarda una nueva colección en el backend
+ */
+private saveNewCollection(collectionId: string, collection: Collection): void {
+  const url = this.getEndpoint('collections');
+
+  this.http.post<Collection>(url, collection).subscribe({
+    next: (savedCollection) => {
+      console.log('New collection saved to backend:', savedCollection);
+      this.getCollections(); // Refrescar todas las colecciones
+    },
+    error: (error) => {
+      console.error('Error saving new collection:', error);
+    }
+  });
+}
+
+/**
+ * Mueve una request entre colecciones - Versión simplificada
+ */
+moveRequest(request: ApiRequest, fromCollectionId: string, toCollectionId: string): Observable<any> {
+  // Actualizar la request con el nuevo collectionId
+  const updatedRequest = {
+    ...request,
+    collectionId: toCollectionId
+  };
+
+  // Actualizar la request en el backend
+  return this.updateRequest(request.requestId, updatedRequest).pipe(
+    tap(() => {
+      // Refrescar colecciones
+      this.getCollections();
+    })
+  );
+}
 }

@@ -1,18 +1,18 @@
 <!-- Modal Backdrop -->
-@if (isOpen()) {
-  <div class="modal-backdrop" (click)="closeModal()"></div>
+@if (modalService.isOpen()) {
+<div class="modal-backdrop" (click)="closeModal()"></div>
 }
 
 <!-- Modal -->
-<div class="new-request-modal" [class.open]="isOpen()" [class.closing]="isClosing()">
+<div class="new-request-modal" [class.open]="modalService.isOpen()" [class.closing]="modalService.isClosing()">
   <div class="modal-header">
     <h3>
-      @if (isEditing()) {
-        <i class="fas fa-edit"></i>
-        Edit Request
+      @if (modalService.isEditing()) {
+      <i class="fas fa-edit"></i>
+      Edit Request
       } @else {
-        <i class="fas fa-plus-circle"></i>
-        New Request
+      <i class="fas fa-plus-circle"></i>
+      New Request
       }
     </h3>
     <button class="modal-close" (click)="closeModal()">
@@ -21,19 +21,6 @@
   </div>
 
   <div class="modal-body">
-    <!-- Request Name Input -->
-    <div class="form-field">
-      <label class="form-label">
-        <i class="fas fa-tag"></i>
-        Request Name
-      </label>
-      <input
-        type="text"
-        class="form-input"
-        placeholder="e.g., Get Users, Create Post"
-        [(ngModel)]="requestName"
-        autofocus />
-    </div>
 
     <!-- Collection Select -->
     <div class="form-field">
@@ -41,9 +28,12 @@
         <i class="fas fa-folder"></i>
         Collection
       </label>
-      <select class="form-select" [(ngModel)]="selectedCollectionId">
+      <select class="form-select"
+              [ngModel]="modalService.selectedCollectionId()"
+              (ngModelChange)="updateSelectedCollectionId($event)">
+
         <option value="" disabled>Select a collection</option>
-        @for (col of collections(); track col.collectionId || $index) {
+        @for (col of collections(); track col.collectionId) {
           <option [value]="col.collectionId">{{ col.name }}</option>
         }
         <option value="new" class="new-option">+ Create new collection</option>
@@ -52,17 +42,19 @@
 
     <!-- New Collection Input (conditional) -->
     @if (showNewCollectionInput()) {
-      <div class="form-field new-collection-field">
-        <label class="form-label">
-          <i class="fas fa-folder-plus"></i>
-          New Collection Name
-        </label>
-        <input
-          type="text"
-          class="form-input"
-          placeholder="e.g., My Awesome API"
-          [(ngModel)]="newCollectionName" />
-      </div>
+    <div class="form-field new-collection-field">
+      <label class="form-label">
+        <i class="fas fa-folder-plus"></i>
+        New Collection Name
+      </label>
+      <input
+        type="text"
+        class="form-input"
+        placeholder="e.g., My Awesome API"
+        [ngModel]="modalService.newCollectionName()"
+        (ngModelChange)="updateNewCollectionName($event)"
+        />
+    </div>
     }
   </div>
 
@@ -70,9 +62,12 @@
     <button class="modal-btn cancel" (click)="closeModal()">
       Cancel
     </button>
-    <button class="modal-btn save" (click)="save()" [disabled]="!isValid()">
+    <button
+      class="modal-btn save"
+      (click)="save()"
+      [disabled]="!isValid()">
       <i class="fas fa-save"></i>
-      {{ isEditing() ? 'Update Request' : 'Save Request' }}
+      {{ modalService.isEditing() ? 'Update Request' : 'Save Request' }}
     </button>
   </div>
 </div>

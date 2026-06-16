@@ -35,6 +35,13 @@ export class RequestBar {
     return this.openRequests().findIndex((r) => r.requestId === current.requestId);
   });
 
+    // Señales del servicio
+  isLoading = this.requestsService.isLoading;
+
+  // Estado del modal
+
+  isEditing = output<boolean>();
+
   // Estado local del dropdown
   selectedIndex = signal<number>(0);
   isDropdownOpen = false;
@@ -43,6 +50,7 @@ export class RequestBar {
   // Input/Output (por si se necesitan)
   requestData = input<ApiRequest>();
   change = output<Partial<ApiRequest>>();
+  isModalOpen = output<boolean>();
 
   ngOnInit() {}
 
@@ -154,15 +162,54 @@ async sendRequest() {
   }
 }
 
-  saveRequest(): void {
-    const currentRequest = this.requestsService.activeRequest();
+   saveRequest(): void {
+    const currentRequest = this.activeRequest();
 
     if (!currentRequest) {
       console.warn('No active request to save');
       return;
     }
 
-    this.modalService.openModal(currentRequest);
+    // Verificar si es una request nueva (ID temporal o sin guardar en backend)
+    const isNewRequest = this.isTemporaryRequest(currentRequest);
+    console.log('IS NEW REQUEST', isNewRequest)
+
+    if (isNewRequest) {
+      // Abrir modal para nueva request (seleccionar colección)
+      this.openModalForNewRequest(currentRequest);
+    } else {
+      // Actualizar request existente
+      this.updateExistingRequest(currentRequest);
+    }
+  }
+
+   private isTemporaryRequest(request: ApiRequest): boolean {
+    // Verifica si la request tiene un ID temporal o no está asociada a ninguna colección
+    const collections = this.requestsService.collections();
+    const isInAnyCollection = collections.some(collection =>
+      collection.requests.some(req => req.requestId === request.requestId)
+    );
+
+    return !isInAnyCollection || request.requestId.startsWith('temp-');
+  }
+
+  private openModalForNewRequest(request: ApiRequest): void {
+    this.modalService.openModal(request);
+    // Puedes pasar la request al modal si necesitas
+  }
+
+  private updateExistingRequest(request: ApiRequest): void {
+    // Mostrar indicador de carga
+    this.requestsService.updateRequest(request.requestId, request).subscribe({
+      next: () => {
+        console.log('Request updated successfully');
+        // Mostrar notificación de éxito si deseas
+      },
+      error: (error) => {
+        console.error('Error updating request:', error);
+        // Mostrar mensaje de error
+      }
+    });
   }
 
  async copyAsCurl() {
