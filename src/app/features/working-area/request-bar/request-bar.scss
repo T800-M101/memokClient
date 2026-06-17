@@ -6,6 +6,9 @@
   width: 100%;
 }
 
+/* ==========================================================================
+   MAIN CONTAINER
+   ========================================================================== */
 .request-bar {
   display: flex;
   flex-direction: column;
@@ -33,339 +36,9 @@
   gap: 1rem;
 }
 
-.request-name-container {
-  flex: 1;
-}
-
-.request-name-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-soft, #f5f5f5);
-  border: 1px solid var(--border-input, #d9d9d9);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-main, #2c3e50);
-  transition: all 0.15s ease;
-}
-
-.request-name-input:focus {
-  outline: none;
-  border-color: var(--primary-color, #00bcd4);
-  background: var(--bg-card, #ffffff);
-  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
-}
-
-.request-name-input::placeholder {
-  color: var(--text-placeholder, #999999);
-  font-weight: normal;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.copy-curl-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--bg-soft, #f5f5f5);
-  border: 1px solid var(--border-color, #e0e0e0);
-  border-radius: 8px;
-  color: var(--text-muted, #7f8c8d);
-  font-weight: 500;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  i {
-    font-size: 0.8rem;
-  }
-
-  &:hover {
-    background: rgba(0, 188, 212, 0.1);
-    border-color: var(--primary-color, #00bcd4);
-    color: var(--primary-color, #00bcd4);
-  }
-
-  &.copied {
-    background: #4caf50;
-    border-color: #4caf50;
-    color: white;
-
-    i {
-      color: white;
-    }
-  }
-}
-
-.save-req-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, var(--primary-color, #00bcd4), var(--primary-hover, #0097a7));
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-weight: 500;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  i {
-    font-size: 0.8rem;
-  }
-
-  &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
-  }
-}
-
 /* ==========================================================================
-   BOTTOM ROW - Method & URL
+   NAVIGATION BUTTONS
    ========================================================================== */
-.request-bar-bottom {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/* Method Selector */
-.method-selector {
-  display: flex;
-  gap: 0.25rem;
-  background: var(--bg-soft, #f5f5f5);
-  border-radius: 10px;
-  padding: 0.25rem;
-}
-
-.method-btn {
-  padding: 0.5rem 0.875rem;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  color: var(--text-muted, #7f8c8d);
-  background: transparent;
-}
-
-.method-btn:hover {
-  color: var(--text-main, #2c3e50);
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.method-btn.active {
-  background: var(--primary-color, #00bcd4);
-  color: white;
-  box-shadow: 0 1px 3px rgba(0, 188, 212, 0.3);
-}
-
-/* Method Colors for active state */
-.method-btn.active[class*="GET"] { background: var(--method-get); }
-.method-btn.active[class*="POST"] { background: var(--method-post); }
-.method-btn.active[class*="PUT"] { background: var(--method-put); }
-.method-btn.active[class*="DELETE"] { background: var(--method-delete); }
-.method-btn.active[class*="PATCH"] { background: var(--method-patch); }
-.method-btn.active[class*="HEAD"] { background: var(--method-head); }
-.method-btn.active[class*="OPTIONS"] { background: var(--method-options); }
-
-/* ==========================================================================
-   METHOD BUTTON ACTIVE COLORS WITH HOVER EFFECTS
-   ========================================================================== */
-
-.method-btn.active[class*="GET"] {
-  background: #00bcd4;
-  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
-}
-.method-btn.active[class*="POST"] {
-  background: #4caf50;
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
-}
-.method-btn.active[class*="PUT"] {
-  background: #ff9800;
-  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
-}
-.method-btn.active[class*="DELETE"] {
-  background: #f44336;
-  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
-}
-.method-btn.active[class*="PATCH"] {
-  background: #9c27b0;
-  box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
-}
-.method-btn.active[class*="HEAD"] {
-  background: #607d8b;
-  box-shadow: 0 2px 8px rgba(96, 125, 139, 0.3);
-}
-.method-btn.active[class*="OPTIONS"] {
-  background: #795548;
-  box-shadow: 0 2px 8px rgba(121, 85, 72, 0.3);
-}
-
-/* URL Input */
-.url-container {
-  flex: 1;
-}
-
-.url-input {
-  width: 100%;
-  padding: 0.625rem 1rem;
-  background: var(--bg-soft, #f5f5f5);
-  border: 1px solid var(--border-input, #d9d9d9);
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-  color: var(--text-main, #2c3e50);
-  transition: all 0.15s ease;
-}
-
-.url-input:focus {
-  outline: none;
-  border-color: var(--primary-color, #00bcd4);
-  background: var(--bg-card, #ffffff);
-  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
-}
-
-.url-input::placeholder {
-  color: var(--text-placeholder, #999999);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Send Button */
-.send-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  background: linear-gradient(135deg, var(--primary-color, #00bcd4), var(--primary-hover, #0097a7));
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-weight: 600;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.send-btn i {
-  font-size: 0.85rem;
-}
-
-.send-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.35);
-}
-
-.send-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.send-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
-@media (max-width: 768px) {
-  .request-bar-top {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .action-buttons {
-    justify-content: flex-end;
-  }
-
-  .request-bar-bottom {
-    flex-wrap: wrap;
-  }
-
-  .method-selector {
-    order: 1;
-  }
-
-  .url-container {
-    order: 2;
-    flex: 1 1 100%;
-  }
-
-  .send-btn {
-    order: 3;
-    margin-left: auto;
-  }
-}
-
-/* ==========================================================================
-   DARK MODE SUPPORT
-   ========================================================================== */
-@media (prefers-color-scheme: dark) {
-  .request-bar {
-    background: var(--bg-sidebar, #1e1e2f);
-    border-color: var(--border-sidebar, #2a2a3d);
-  }
-
-  .request-name-input {
-    background: var(--bg-hover, #2a2a3d);
-    border-color: var(--border-sidebar, #2a2a3d);
-    color: var(--text-sidebar, #e0e0e0);
-  }
-
-  .method-selector {
-    background: var(--bg-hover, #2a2a3d);
-  }
-
-  .method-btn {
-    color: var(--text-sidebar, #e0e0e0);
-  }
-
-  .method-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-  }
-
-  .url-input {
-    background: var(--bg-hover, #2a2a3d);
-    border-color: var(--border-sidebar, #2a2a3d);
-    color: var(--text-sidebar, #e0e0e0);
-  }
-
-  .url-input:focus {
-    background: var(--bg-sidebar, #1e1e2f);
-  }
-
-  .copy-curl-btn {
-    background: var(--bg-hover, #2a2a3d);
-    border-color: var(--border-sidebar, #2a2a3d);
-    color: var(--text-sidebar, #e0e0e0);
-  }
-
-
-}
-
-/* Navigation Buttons */
 .nav-buttons {
   display: flex;
   align-items: center;
@@ -398,21 +71,6 @@
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-  }
-}
-
-.request-counter {
-  display: flex;
-  align-items: center;
-  gap: 0.125rem;
-  padding: 0 0.5rem;
-  font-size: 0.7rem;
-  color: var(--text-muted, #7f8c8d);
-  font-weight: 500;
-
-  span:first-child {
-    min-width: 24px;
-    text-align: center;
   }
 }
 
@@ -562,7 +220,6 @@
   &.patch { background: rgba(156, 39, 176, 0.15); color: #9c27b0; }
   &.head { background: rgba(96, 125, 139, 0.15); color: #607d8b; }
   &.options { background: rgba(121, 85, 72, 0.15); color: #795548; }
-
 }
 
 .request-name {
@@ -601,12 +258,38 @@
   opacity: 1;
 }
 
-/* Close current request button */
+/* ==========================================================================
+   REQUEST NAME INPUT
+   ========================================================================== */
 .request-name-container {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex: 1;
+}
+
+.request-name-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-soft, #f5f5f5);
+  border: 1px solid var(--border-input, #d9d9d9);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main, #2c3e50);
+  transition: all 0.15s ease;
+}
+
+.request-name-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #00bcd4);
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+}
+
+.request-name-input::placeholder {
+  color: var(--text-placeholder, #999999);
+  font-weight: normal;
 }
 
 .close-current-btn {
@@ -633,14 +316,394 @@
   }
 }
 
+/* ==========================================================================
+   ACTION BUTTONS
+   ========================================================================== */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
 
-/* Method Colors for active state */
+.copy-curl-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-soft, #f5f5f5);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  color: var(--text-muted, #7f8c8d);
+  font-weight: 500;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.8rem;
+  }
+
+  &:hover {
+    background: rgba(0, 188, 212, 0.1);
+    border-color: var(--primary-color, #00bcd4);
+    color: var(--primary-color, #00bcd4);
+  }
+
+  &.copied {
+    background: #4caf50;
+    border-color: #4caf50;
+    color: white;
+
+    i {
+      color: white;
+    }
+  }
+}
+
+.save-req-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--primary-color, #00bcd4), var(--primary-hover, #0097a7));
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.8rem;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+/* ==========================================================================
+   BOTTOM ROW - Method & URL
+   ========================================================================== */
+.request-bar-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   METHOD SELECTOR
+   ========================================================================== */
+.method-selector {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--bg-soft, #f5f5f5);
+  border-radius: 10px;
+  padding: 0.25rem;
+}
+
+.method-btn {
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text-muted, #7f8c8d);
+  background: transparent;
+}
+
+.method-btn:hover {
+  color: var(--text-main, #2c3e50);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Method Colors for active state (general) */
+.method-btn.active {
+  background: var(--primary-color, #00bcd4);
+  color: white;
+  box-shadow: 0 1px 3px rgba(0, 188, 212, 0.3);
+}
+
 /* ==========================================================================
    METHOD BUTTON ACTIVE COLORS (with specific classes)
    ========================================================================== */
-
 .method-btn.active.get-method { background: #00bcd4; color: white; }
 .method-btn.active.post-method { background: #4caf50; color: white; }
 .method-btn.active.put-method { background: #ff9800; color: white; }
 .method-btn.active.delete-method { background: #f44336; color: white; }
 .method-btn.active.patch-method { background: #9c27b0; color: white; }
+
+/* ==========================================================================
+   URL INPUT
+   ========================================================================== */
+.url-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.url-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-app, #2a2a3d);
+  border: 1px solid var(--border-input, #3a3a4d);
+  border-radius: 8px;
+  color: var(--text-main, #e0e0e0);
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+
+  &.has-variables {
+    border-color: var(--primary-color, #00bcd4);
+    padding-right: 100px;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color, #00bcd4);
+    box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.15);
+  }
+
+  &::placeholder {
+    color: var(--text-placeholder, #6c6c8a);
+  }
+}
+
+/* URL Input Focus (overrides) */
+.url-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #00bcd4);
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+}
+
+.url-input::placeholder {
+  color: var(--text-placeholder, #999999);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   VARIABLE INDICATOR
+   ========================================================================== */
+.variable-indicator {
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  background: var(--primary-color, #00bcd4);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  pointer-events: none;
+  white-space: nowrap;
+
+  i {
+    font-size: 0.5rem;
+  }
+}
+
+/* ==========================================================================
+   RESOLVED URL PREVIEW
+   ========================================================================== */
+.resolved-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  margin-top: 0.25rem;
+  background: rgba(0, 188, 212, 0.05);
+  border-radius: 4px;
+  font-size: 0.6rem;
+  color: var(--text-muted, #8e8ea8);
+
+  .preview-label {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .preview-value {
+    color: var(--primary-color, #00bcd4);
+    font-family: 'Monaco', 'Menlo', monospace;
+    word-break: break-all;
+  }
+}
+
+/* ==========================================================================
+   SEND BUTTON
+   ========================================================================== */
+.send-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, var(--primary-color, #00bcd4), var(--primary-hover, #0097a7));
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.send-btn i {
+  font-size: 0.85rem;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.35);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .request-bar-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-buttons {
+    justify-content: flex-end;
+  }
+
+  .request-bar-bottom {
+    flex-wrap: wrap;
+  }
+
+  .method-selector {
+    order: 1;
+  }
+
+  .url-container {
+    order: 2;
+    flex: 1 1 100%;
+  }
+
+  .send-btn {
+    order: 3;
+    margin-left: auto;
+  }
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  /* Main Container */
+  .request-bar {
+    background: var(--bg-sidebar, #1e1e2f);
+    border-color: var(--border-sidebar, #2a2a3d);
+  }
+
+  /* Request Name Input */
+  .request-name-input {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  /* Method Selector */
+  .method-selector {
+    background: var(--bg-hover, #2a2a3d);
+  }
+
+  .method-btn {
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  .method-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  /* URL Input */
+  .url-input-hidden {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+    caret-color: var(--text-sidebar, #e0e0e0);
+
+    &:focus {
+      background: var(--bg-sidebar, #1e1e2f);
+      border-color: var(--primary-color, #00bcd4);
+      box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+    }
+  }
+
+  .url-highlight {
+    background: var(--bg-hover, #2a2a3d);
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  .env-indicator {
+    background: var(--bg-sidebar, #1e1e2f);
+    border-color: var(--border-sidebar, #2a2a3d);
+    color: var(--text-muted-dark, #8e8ea8);
+  }
+
+  /* Copy cURL Button */
+  .copy-curl-btn {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  /* Dropdown Menu */
+  .dropdown-menu {
+    background: var(--bg-sidebar, #1e1e2f);
+    border-color: var(--border-sidebar, #2a2a3d);
+  }
+
+  .dropdown-header {
+    background: var(--bg-hover, #2a2a3d);
+    border-color: var(--border-sidebar, #2a2a3d);
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  .dropdown-item {
+    border-color: var(--border-sidebar, #2a2a3d);
+
+    &:hover {
+      background: var(--bg-hover, #2a2a3d);
+    }
+  }
+
+  .request-name {
+    color: var(--text-sidebar, #e0e0e0);
+  }
+
+  .close-all-btn {
+    color: var(--text-sidebar, #e0e0e0);
+  }
+}

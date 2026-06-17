@@ -31,7 +31,7 @@
         "body": null
       }
     ],
-    "isExpanded": true
+    "isExpanded": false
   },
   {
     "collectionId": "00aa881d-c306-430a-8643-37c91497012f",
@@ -52,6 +52,6 @@
         "body": null
       }
     ],
-    "isExpanded": true
+    "isExpanded": false
   }
 ]

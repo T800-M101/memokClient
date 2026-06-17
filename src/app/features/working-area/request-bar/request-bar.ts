@@ -1,10 +1,17 @@
-import { Component, computed, HostListener, inject, input, output, signal } from '@angular/core';
+import { Component, computed, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { lastValueFrom } from 'rxjs';
+
 import { RequestsService } from '../../../core/services/requests-service/requests-service';
-import { ApiRequest } from '../../../core/interfaces/api-request.interface';
 import { ModalService } from '../../../core/services/modal-service/modal-service';
 import { NotificationService } from '../../../core/services/notifications/notification-service';
-import { lastValueFrom } from 'rxjs';
+import { EnvironmentService } from '../../../core/services/env-service/environment-service';
+
+import { ApiRequest } from '../../../core/interfaces/api-request.interface';
+
+// ============================================================================
+// REQUEST BAR COMPONENT
+// ============================================================================
 
 @Component({
   selector: 'app-request-bar',
@@ -13,247 +20,269 @@ import { lastValueFrom } from 'rxjs';
   styleUrl: './request-bar.scss',
 })
 export class RequestBar {
-  private requestsService = inject(RequestsService);
-  private modalService = inject(ModalService);
-  private notificationService = inject(NotificationService);
+  // ==========================================================================
+  // DEPENDENCIES
+  // ==========================================================================
 
-  // Signals del servicio
+  private readonly requestsService = inject(RequestsService);
+  private readonly modalService = inject(ModalService);
+  private readonly notificationService = inject(NotificationService);
+  readonly environmentService = inject(EnvironmentService);
+
+  // ==========================================================================
+  // PUBLIC SIGNALS (from services)
+  // ==========================================================================
+
   readonly activeRequest = this.requestsService.activeRequest;
   readonly openRequests = this.requestsService.openRequests;
+  readonly isLoading = this.requestsService.isLoading;
 
-  // Computed values - estos se actualizan automáticamente cuando cambia activeRequest
+  // ==========================================================================
+  // COMPUTED VALUES - Request State
+  // ==========================================================================
+
   readonly totalRequests = computed(() => this.openRequests().length);
   readonly hasPrevious = computed(() => this.currentIndex() > 0);
   readonly hasNext = computed(() => this.currentIndex() < this.totalRequests() - 1);
   readonly method = computed(() => this.activeRequest()?.method || 'GET');
   readonly url = computed(() => this.activeRequest()?.url || '');
   readonly requestName = computed(() => this.activeRequest()?.name || '');
-
   readonly currentIndex = computed(() => {
     const current = this.activeRequest();
     if (!current) return 0;
     return this.openRequests().findIndex((r) => r.requestId === current.requestId);
   });
 
-    // Señales del servicio
-  isLoading = this.requestsService.isLoading;
+  readonly hasVariables = computed(() => {
+    const currentUrl = this.url();
+    if (!currentUrl) return false;
+    return /\{\{.*?\}\}/.test(currentUrl);
+  });
 
- 
+  readonly resolvedUrlPreview = computed(() => {
+    const currentUrl = this.url();
+    if (!currentUrl) return '';
+    return this.resolveVariables(currentUrl);
+  });
 
-
+  // ==========================================================================
+  // UI STATE
+  // ==========================================================================
   isDropdownOpen = false;
   isCopied = false;
 
+  // ==========================================================================
+  // LIFECYCLE HOOKS
+  // ==========================================================================
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.autoSelectEnvironment();
+  }
 
+  // ==========================================================================
+  // DROPDOWN MANAGEMENT
+  // ==========================================================================
+
+  /** Close dropdown when clicking outside */
   @HostListener('document:click')
   closeDropdown() {
     this.isDropdownOpen = false;
   }
 
+  /** Toggle the request dropdown */
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
+  // ==========================================================================
+  // REQUEST UPDATES
+  // ==========================================================================
+
+  /** Update the request URL */
   onUrlChange(url: string): void {
     this.requestsService.updateActiveRequest({ url });
   }
 
+  /** Update the request method */
   onMethodChange(method: string) {
     this.requestsService.updateActiveRequest({ method: method as any });
   }
 
+  /** Update the request name */
   onRequestNameChange(name: string): void {
     this.requestsService.updateActiveRequest({ name });
   }
 
+  // ==========================================================================
+  // SEND REQUEST
+  // ==========================================================================
 
+  /**
+   * Send the current request through the proxy
+   * Resolves environment variables before sending
+   */
+  async sendRequest() {
+    const current = this.activeRequest();
+    if (!current?.url) return;
 
-async sendRequest() {
-  const current = this.activeRequest();
-  if (!current?.url) return;
+    this.notificationService.info('Sending request...');
 
-  //this.isLoading = true;
-  this.notificationService.info('Sending request...');
+    // Resolve variables in the URL
+    let finalUrl = this.resolveVariables(current.url);
 
-  // Build URL with query parameters
-  let finalUrl = current.url;
-  if (current.params && Object.keys(current.params).length > 0) {
-    const params = new URLSearchParams(current.params).toString();
-    const separator = finalUrl.includes('?') ? '&' : '?';
-    finalUrl = `${finalUrl}${separator}${params}`;
-  }
+    // Resolve variables in params
+    const resolvedParams = this.resolveObjectVariables(current.params || {}) as Record<string, string>;
 
-  // Prepare headers (excluding Content-Type for body handling)
-  const headers: Record<string, string> = {};
+    // Build URL with query parameters
+    if (resolvedParams && Object.keys(resolvedParams).length > 0) {
+      const params = new URLSearchParams(resolvedParams).toString();
+      const separator = finalUrl.includes('?') ? '&' : '?';
+      finalUrl = `${finalUrl}${separator}${params}`;
+    }
 
-  // Copy existing headers
-  if (current.headers) {
-    Object.entries(current.headers).forEach(([key, value]) => {
-      headers[key] = value;
+    // Resolve variables in headers
+    const resolvedHeaders = this.resolveObjectVariables(current.headers || {}) as Record<string, string>;
+
+    // Prepare headers
+    const headers: Record<string, string> = {};
+
+    // Copy resolved headers
+    Object.entries(resolvedHeaders).forEach(([key, value]) => {
+      headers[key] = value as string;
     });
-  }
 
-  // Add auth headers if present
-  if (current.auth?.type === 'bearer' && current.auth.token) {
-    headers['Authorization'] = `Bearer ${current.auth.token}`;
-  } else if (current.auth?.type === 'basic' && current.auth.username && current.auth.password) {
-    const credentials = btoa(`${current.auth.username}:${current.auth.password}`);
-    headers['Authorization'] = `Basic ${credentials}`;
-  }
+    // Add auth headers if present
+    if (current.auth?.type === 'bearer' && current.auth.token) {
+      const resolvedToken = this.resolveVariables(current.auth.token);
+      headers['Authorization'] = `Bearer ${resolvedToken}`;
+    } else if (current.auth?.type === 'basic' && current.auth.username && current.auth.password) {
+      const resolvedUsername = this.resolveVariables(current.auth.username);
+      const resolvedPassword = this.resolveVariables(current.auth.password);
+      const credentials = btoa(`${resolvedUsername}:${resolvedPassword}`);
+      headers['Authorization'] = `Basic ${credentials}`;
+    }
 
-  // Prepare body
-  let requestBody = null;
-  if (current.body) {
-    // If body is a string, try to parse it, otherwise use as is
-    if (typeof current.body === 'string') {
-      try {
-        requestBody = JSON.parse(current.body);
-        // Ensure Content-Type is set for JSON
+    // Resolve body variables
+    let requestBody = null;
+    if (current.body) {
+      if (typeof current.body === 'string') {
+        try {
+          const parsedBody = JSON.parse(current.body);
+          const resolvedBody = this.resolveObjectVariables(parsedBody);
+          requestBody = resolvedBody;
+          if (!headers['Content-Type'] && !headers['content-type']) {
+            headers['Content-Type'] = 'application/json';
+          }
+        } catch {
+          requestBody = this.resolveVariables(current.body);
+        }
+      } else {
+        requestBody = this.resolveObjectVariables(current.body);
         if (!headers['Content-Type'] && !headers['content-type']) {
           headers['Content-Type'] = 'application/json';
         }
-      } catch {
-        // If not valid JSON, send as raw string
-        requestBody = current.body;
-      }
-    } else {
-      requestBody = current.body;
-      if (!headers['Content-Type'] && !headers['content-type']) {
-        headers['Content-Type'] = 'application/json';
       }
     }
-  }
 
-  const requestPayload = {
-    method: current.method,
-    headers: headers,
-    body: requestBody
-  };
+    const requestPayload = {
+      method: current.method,
+      headers: headers,
+      body: requestBody,
+    };
 
-  console.log('Sending request:', {
-    url: finalUrl,
-    method: requestPayload.method,
-    headers: requestPayload.headers,
-    body: requestPayload.body
-  });
-
-  try {
-    const response = await lastValueFrom(
-      this.requestsService.sendRequest(finalUrl, requestPayload)
-    );
-
-    console.log('Response received:', response);
-    this.requestsService.setResponse(response);
-    this.notificationService.success('Request completed successfully!');
-  } catch (error: any) {
-    console.error('Request failed:', error);
-    this.notificationService.error(`Request failed: ${error.message || 'Unknown error'}`);
-  } finally {
-    //this.isLoading = false;
-  }
-}
-
-   saveRequest(): void {
-    const currentRequest = this.activeRequest();
-
-    if (!currentRequest) {
-      console.warn('No active request to save');
-      return;
-    }
-
-    // Verificar si es una request nueva (ID temporal o sin guardar en backend)
-    const isNewRequest = this.isTemporaryRequest(currentRequest);
-    console.log('IS NEW REQUEST', isNewRequest)
-
-    if (isNewRequest) {
-      // Abrir modal para nueva request (seleccionar colección)
-      this.openModalForNewRequest(currentRequest);
-    } else {
-      // Actualizar request existente
-      this.updateExistingRequest(currentRequest);
-    }
-  }
-
-   private isTemporaryRequest(request: ApiRequest): boolean {
-    // Verifica si la request tiene un ID temporal o no está asociada a ninguna colección
-    const collections = this.requestsService.collections();
-    const isInAnyCollection = collections.some(collection =>
-      collection.requests.some(req => req.requestId === request.requestId)
-    );
-
-    return !isInAnyCollection || request.requestId.startsWith('temp-');
-  }
-
-  private openModalForNewRequest(request: ApiRequest): void {
-    this.modalService.openModal(request);
-    // Puedes pasar la request al modal si necesitas
-  }
-
-  private updateExistingRequest(request: ApiRequest): void {
-    // Mostrar indicador de carga
-    this.requestsService.updateRequest(request.requestId, request).subscribe({
-      next: () => {
-        console.log('Request updated successfully');
-        // Mostrar notificación de éxito si deseas
-      },
-      error: (error) => {
-        console.error('Error updating request:', error);
-        // Mostrar mensaje de error
-      }
+    console.log('Sending request with resolved variables:', {
+      originalUrl: current.url,
+      resolvedUrl: finalUrl,
+      method: requestPayload.method,
+      headers: requestPayload.headers,
+      body: requestPayload.body,
     });
+
+    try {
+      const response = await lastValueFrom(
+        this.requestsService.sendRequest(finalUrl, requestPayload)
+      );
+
+      console.log('Response received:', response);
+      this.requestsService.setResponse(response);
+      this.notificationService.success('Request completed successfully!');
+    } catch (error: any) {
+      console.error('Request failed:', error);
+      this.notificationService.error(`Request failed: ${error.message || 'Unknown error'}`);
+    }
   }
 
- async copyAsCurl() {
-  const current = this.activeRequest();
-  if (!current) return;
+  // ==========================================================================
+  // COPY AS CURL
+  // ==========================================================================
 
-  // Build URL with query parameters
-  let fullUrl = current.url;
-  if (current.params && Object.keys(current.params).length > 0) {
-    const params = new URLSearchParams(current.params).toString();
-    const separator = fullUrl.includes('?') ? '&' : '?';
-    fullUrl = `${fullUrl}${separator}${params}`;
+  /**
+   * Copy the current request as a cURL command
+   * Resolves environment variables before generating the command
+   */
+  async copyAsCurl() {
+    const current = this.activeRequest();
+    if (!current) return;
+
+    // Use resolved variables
+    const resolvedUrl = this.resolveVariables(current.url);
+    let fullUrl = resolvedUrl;
+
+    // Resolve params
+    const resolvedParams = this.resolveObjectVariables(current.params || {});
+    if (resolvedParams && Object.keys(resolvedParams).length > 0) {
+      const params = new URLSearchParams(resolvedParams).toString();
+      const separator = fullUrl.includes('?') ? '&' : '?';
+      fullUrl = `${fullUrl}${separator}${params}`;
+    }
+
+    // Resolve headers
+    const resolvedHeaders = this.resolveObjectVariables(current.headers || {});
+    const headers = resolvedHeaders || {};
+
+    // Resolve body
+    let resolvedBody = current.body;
+    if (resolvedBody && typeof resolvedBody === 'object') {
+      resolvedBody = this.resolveObjectVariables(resolvedBody);
+    } else if (resolvedBody && typeof resolvedBody === 'string') {
+      resolvedBody = this.resolveVariables(resolvedBody);
+    }
+
+    // Build curl command with resolved values
+    let curl = `curl -X ${current.method} "${fullUrl}"`;
+
+    // Add headers
+    Object.entries(headers).forEach(([key, value]) => {
+      const escapedValue = String(value).replace(/"/g, '\\"');
+      curl += ` \\\n  -H "${key}: ${escapedValue}"`;
+    });
+
+    // Add body
+    if (
+      resolvedBody &&
+      (current.method === 'POST' || current.method === 'PUT' || current.method === 'PATCH')
+    ) {
+      let bodyStr = typeof resolvedBody === 'string' ? resolvedBody : JSON.stringify(resolvedBody);
+      bodyStr = bodyStr.replace(/'/g, "'\\''");
+      curl += ` \\\n  -d '${bodyStr}'`;
+    }
+
+    try {
+      await navigator.clipboard.writeText(curl);
+      this.isCopied = true;
+      setTimeout(() => {
+        this.isCopied = false;
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
   }
 
-  const headers = current.headers || {};
-  const body = current.body;
+  // ==========================================================================
+  // NAVIGATION
+  // ==========================================================================
 
-  // Start building curl command
-  let curl = `curl -X ${current.method} "${fullUrl}"`;
-
-  // Add headers
-  Object.entries(headers).forEach(([key, value]) => {
-    // Escape double quotes in header values
-    const escapedValue = value.replace(/"/g, '\\"');
-    curl += ` \\\n  -H "${key}: ${escapedValue}"`;
-  });
-
-  // Add body for methods that support it
-  if (body && (current.method === 'POST' || current.method === 'PUT' || current.method === 'PATCH')) {
-    let bodyStr = typeof body === 'string' ? body : JSON.stringify(body);
-    // Escape single quotes in body
-    bodyStr = bodyStr.replace(/'/g, "'\\''");
-    curl += ` \\\n  -d '${bodyStr}'`;
-  }
-
-  // Add content-type header if body is present and not already specified
-  if (body && !headers['Content-Type'] && !headers['content-type']) {
-    curl += ` \\\n  -H "Content-Type: application/json"`;
-  }
-
-  try {
-    await navigator.clipboard.writeText(curl);
-    this.isCopied = true;
-    setTimeout(() => {
-      this.isCopied = false;
-    }, 2000);
-  } catch (error) {
-    console.error('Failed to copy:', error);
-  }
-}
-
+  /** Navigate to the previous request */
   navigatePrevious(): void {
     if (this.hasPrevious()) {
       const prevRequest = this.openRequests()[this.currentIndex() - 1];
@@ -263,6 +292,7 @@ async sendRequest() {
     }
   }
 
+  /** Navigate to the next request */
   navigateNext(): void {
     if (this.hasNext()) {
       const nextRequest = this.openRequests()[this.currentIndex() + 1];
@@ -272,6 +302,7 @@ async sendRequest() {
     }
   }
 
+  /** Go to a specific request by index */
   goToRequest(index: number): void {
     const request = this.openRequests()[index];
     if (request) {
@@ -280,6 +311,11 @@ async sendRequest() {
     this.isDropdownOpen = false;
   }
 
+  // ==========================================================================
+  // CLOSE REQUESTS
+  // ==========================================================================
+
+  /** Close a specific request by index */
   closeRequest(index: number, event: Event): void {
     event.stopPropagation();
     const request = this.openRequests()[index];
@@ -289,6 +325,7 @@ async sendRequest() {
     this.isDropdownOpen = false;
   }
 
+  /** Close the current request */
   closeCurrentRequest(): void {
     const current = this.activeRequest();
     if (current) {
@@ -309,8 +346,138 @@ async sendRequest() {
     }
   }
 
+  /** Close all open requests */
   closeAllRequests(): void {
     this.requestsService.closeAllRequests();
     this.isDropdownOpen = false;
+  }
+
+  // ==========================================================================
+  // SAVE REQUEST
+  // ==========================================================================
+
+  /** Save the current request */
+  saveRequest(): void {
+    const currentRequest = this.activeRequest();
+
+    if (!currentRequest) {
+      console.warn('No active request to save');
+      return;
+    }
+
+    // Check if it's a new request (temporary ID or not saved to backend)
+    const isNewRequest = this.isTemporaryRequest(currentRequest);
+
+    if (isNewRequest) {
+      this.openModalForNewRequest(currentRequest);
+    } else {
+      this.updateExistingRequest(currentRequest);
+    }
+  }
+
+  /** Check if a request is temporary (not yet saved) */
+  private isTemporaryRequest(request: ApiRequest): boolean {
+    const collections = this.requestsService.collections();
+    const isInAnyCollection = collections.some((collection) =>
+      collection.requests.some((req) => req.requestId === request.requestId)
+    );
+
+    return !isInAnyCollection || request.requestId.startsWith('temp-');
+  }
+
+  /** Open modal for a new request */
+  private openModalForNewRequest(request: ApiRequest): void {
+    this.modalService.openModal(request);
+  }
+
+  /** Update an existing request */
+  private updateExistingRequest(request: ApiRequest): void {
+    this.requestsService.updateRequest(request.requestId, request).subscribe({
+      next: () => {
+        this.notificationService.show('Request updated successfully');
+      },
+      error: (error) => {
+        console.error('Error updating request:', error);
+        this.notificationService.error('Error updating request');
+      },
+    });
+  }
+
+  // ==========================================================================
+  // ENVIRONMENT VARIABLE RESOLUTION
+  // ==========================================================================
+
+  /**
+   * Auto-select the first available environment if none is selected
+   */
+  private autoSelectEnvironment(): void {
+    const environments = this.environmentService.environments();
+    const selected = this.environmentService.selectedEnvironment();
+
+    if (!selected && environments.length > 0) {
+      const firstEnv = environments[0];
+      this.environmentService.selectEnvironment(firstEnv.id);
+    } else if (environments.length === 0) {
+      console.warn('⚠️ No environments found. Please create one first.');
+    } else {
+      console.log('✅ Environment already selected:', selected?.name);
+    }
+  }
+
+  /**
+   * Resolve environment variables in a string
+   * Replaces {{variable_name}} with the actual value from the selected environment
+   */
+  private resolveVariables(text: string): string {
+    if (!text) return text;
+
+    const selectedEnv = this.environmentService.selectedEnvironment();
+
+    if (!selectedEnv) {
+      console.warn('⚠️ No environment selected!');
+      return text;
+    }
+
+    let resolved = text;
+
+    // Replace all {{variable}} placeholders
+    for (const variable of selectedEnv.variables) {
+      const placeholder = `{{${variable.key}}}`;
+      resolved = resolved.replace(new RegExp(placeholder, 'g'), variable.value);
+    }
+
+    return resolved;
+  }
+
+  /**
+   * Resolve variables in an object recursively
+   */
+  private resolveObjectVariables(obj: any): any {
+    if (typeof obj === 'string') {
+      return this.resolveVariables(obj);
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.resolveObjectVariables(item));
+    }
+
+    if (obj && typeof obj === 'object') {
+      const resolved: any = {};
+      for (const key of Object.keys(obj)) {
+        const value = obj[key];
+        if (typeof value === 'string') {
+          resolved[key] = this.resolveVariables(value);
+        } else if (Array.isArray(value)) {
+          resolved[key] = value.map((item) => this.resolveObjectVariables(item));
+        } else if (value && typeof value === 'object') {
+          resolved[key] = this.resolveObjectVariables(value);
+        } else {
+          resolved[key] = value;
+        }
+      }
+      return resolved;
+    }
+
+    return obj;
   }
 }
