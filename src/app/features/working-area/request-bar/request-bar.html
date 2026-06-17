@@ -1,6 +1,49 @@
 <div class="request-bar">
   <!-- Top row -->
   <div class="request-bar-top">
+    <!-- Agrega esto en el request-bar-top o request-bar-bottom -->
+<div class="environment-selector">
+  <button class="env-selector-btn" (click)="toggleEnvironmentSelector()">
+    <i class="fas fa-globe"></i>
+    <span>
+      @if (selectedEnvironment()) {
+        {{ selectedEnvironment()?.name }}
+      } @else {
+        No environment
+      }
+    </span>
+    <i class="fas fa-chevron-down" [class.rotated]="isEnvironmentSelectorOpen"></i>
+  </button>
+
+  @if (isEnvironmentSelectorOpen) {
+    <div class="env-selector-dropdown">
+      <div class="env-selector-header">
+        <span>Select Environment</span>
+        <button class="env-clear-btn" (click)="clearEnvironment()">
+          <i class="fas fa-times"></i>
+          Clear
+        </button>
+      </div>
+      <div class="env-selector-list">
+        @for (env of environments(); track env.id) {
+          <div
+            class="env-selector-item"
+            [class.active]="selectedEnvironment()?.id === env.id"
+            (click)="selectEnvironment(env.id)">
+            <div class="env-item-info">
+              <i class="fas fa-folder"></i>
+              <span>{{ env.name }}</span>
+              <span class="env-var-count">{{ env.variables.length }} vars</span>
+            </div>
+            @if (selectedEnvironment()?.id === env.id) {
+              <i class="fas fa-check-circle"></i>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
     <!-- Navigation Buttons -->
     <div class="nav-buttons">
       <button class="nav-btn" (click)="navigatePrevious()" [disabled]="!hasPrevious()" title="Previous request">

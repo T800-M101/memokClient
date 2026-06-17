@@ -131,7 +131,10 @@ export class RequestBar {
     let finalUrl = this.resolveVariables(current.url);
 
     // Resolve variables in params
-    const resolvedParams = this.resolveObjectVariables(current.params || {}) as Record<string, string>;
+    const resolvedParams = this.resolveObjectVariables(current.params || {}) as Record<
+      string,
+      string
+    >;
 
     // Build URL with query parameters
     if (resolvedParams && Object.keys(resolvedParams).length > 0) {
@@ -141,7 +144,10 @@ export class RequestBar {
     }
 
     // Resolve variables in headers
-    const resolvedHeaders = this.resolveObjectVariables(current.headers || {}) as Record<string, string>;
+    const resolvedHeaders = this.resolveObjectVariables(current.headers || {}) as Record<
+      string,
+      string
+    >;
 
     // Prepare headers
     const headers: Record<string, string> = {};
@@ -200,7 +206,7 @@ export class RequestBar {
 
     try {
       const response = await lastValueFrom(
-        this.requestsService.sendRequest(finalUrl, requestPayload)
+        this.requestsService.sendRequest(finalUrl, requestPayload),
       );
 
       console.log('Response received:', response);
@@ -379,7 +385,7 @@ export class RequestBar {
   private isTemporaryRequest(request: ApiRequest): boolean {
     const collections = this.requestsService.collections();
     const isInAnyCollection = collections.some((collection) =>
-      collection.requests.some((req) => req.requestId === request.requestId)
+      collection.requests.some((req) => req.requestId === request.requestId),
     );
 
     return !isInAnyCollection || request.requestId.startsWith('temp-');
@@ -414,9 +420,11 @@ export class RequestBar {
     const environments = this.environmentService.environments();
     const selected = this.environmentService.selectedEnvironment();
 
+    // Only auto-select if there's no environment selected
     if (!selected && environments.length > 0) {
       const firstEnv = environments[0];
       this.environmentService.selectEnvironment(firstEnv.id);
+      console.log('✅ Auto-selected environment:', firstEnv.name);
     } else if (environments.length === 0) {
       console.warn('⚠️ No environments found. Please create one first.');
     } else {
@@ -434,7 +442,7 @@ export class RequestBar {
     const selectedEnv = this.environmentService.selectedEnvironment();
 
     if (!selectedEnv) {
-      console.warn('⚠️ No environment selected!');
+      console.warn('⚠️ No environment selected! Variables will not be resolved.');
       return text;
     }
 
@@ -479,5 +487,43 @@ export class RequestBar {
     }
 
     return obj;
+  }
+
+  // ==========================================================================
+  // ENVIRONMENT SELECTOR
+  // ==========================================================================
+
+  /** All available environments */
+  readonly environments = this.environmentService.environments;
+
+  /** Currently selected environment */
+  readonly selectedEnvironment = this.environmentService.selectedEnvironment;
+
+  /** Whether the environment selector dropdown is open */
+  isEnvironmentSelectorOpen = false;
+
+  /**
+   * Toggle the environment selector dropdown
+   */
+  toggleEnvironmentSelector(): void {
+    this.isEnvironmentSelectorOpen = !this.isEnvironmentSelectorOpen;
+  }
+
+  /**
+   * Select an environment by ID
+   */
+  selectEnvironment(envId: string): void {
+    this.environmentService.selectEnvironment(envId);
+    this.isEnvironmentSelectorOpen = false;
+    this.notificationService.info(`Environment switched to: ${this.selectedEnvironment()?.name}`);
+  }
+
+  /**
+   * Clear the selected environment
+   */
+  clearEnvironment(): void {
+    this.environmentService.selectEnvironment(null);
+    this.isEnvironmentSelectorOpen = false;
+    this.notificationService.info('Environment cleared');
   }
 }
