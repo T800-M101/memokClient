@@ -501,22 +501,7 @@ addRequestToCollection(collectionId: string, request: ApiRequest, newCollectionN
   );
 }
 
-/**
- * Guarda una nueva colección en el backend
- */
-private saveNewCollection(collectionId: string, collection: Collection): void {
-  const url = this.getEndpoint('collections');
 
-  this.http.post<Collection>(url, collection).subscribe({
-    next: (savedCollection) => {
-      console.log('New collection saved to backend:', savedCollection);
-      this.getCollections(); // Refrescar todas las colecciones
-    },
-    error: (error) => {
-      console.error('Error saving new collection:', error);
-    }
-  });
-}
 
 /**
  * Mueve una request entre colecciones - Versión simplificada

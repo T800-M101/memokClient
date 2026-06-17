@@ -32,5 +32,26 @@
       }
     ],
     "isExpanded": true
+  },
+  {
+    "collectionId": "00aa881d-c306-430a-8643-37c91497012f",
+    "name": "patch",
+    "icon": "fas fa-folder",
+    "requests": [
+      {
+        "requestId": "27cc6c2c-e655-4eaa-9b67-339824e1f87a",
+        "collectionId": "00aa881d-c306-430a-8643-37c91497012f",
+        "name": "patrh something",
+        "method": "PATCH",
+        "url": "pathcing",
+        "params": {},
+        "headers": {},
+        "auth": {
+          "type": "none"
+        },
+        "body": null
+      }
+    ],
+    "isExpanded": true
   }
 ]

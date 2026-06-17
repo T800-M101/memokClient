@@ -36,9 +36,4 @@ export class OverlayMenuService {
     }, this.ANIMATION_DURATION);
   }
 
-  closeMenuImmediately(): void {
-    this._isClosing.set(false);
-    this._isMenuOpen.set(false);
-  }
-
 }

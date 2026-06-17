@@ -19,8 +19,6 @@ export class Sidebar {
   modalService = inject(ModalService);
 
   collections = this.requestsService.collections;
-  onSelectRequest = output<string>();
-  onNewCollection = output<void>();
   onSearch = output<string>();
   searchTerm = signal('');
   isDrawerOpen = signal(false);

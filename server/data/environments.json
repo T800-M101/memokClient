@@ -1,0 +1,26 @@
+[
+  {
+    "id": "2382160d-da79-4b58-b300-2de3df6c2e4a",
+    "name": "Test",
+    "variables": [
+      {
+        "key": "aaaaa",
+        "value": "aaaaaa"
+      }
+    ],
+    "createdAt": "2026-06-17T11:45:53.754Z",
+    "updatedAt": "2026-06-17T11:45:53.754Z"
+  },
+  {
+    "id": "0bf30f30-b5ac-4ef9-a122-6dc29f7d8007",
+    "name": "stage",
+    "variables": [
+      {
+        "key": "xxxxx",
+        "value": "memo"
+      }
+    ],
+    "createdAt": "2026-06-17T12:05:42.454Z",
+    "updatedAt": "2026-06-17T12:06:35.967Z"
+  }
+]

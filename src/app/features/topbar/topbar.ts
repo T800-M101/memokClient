@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { OverlayMenuService } from '../../core/services/overlay-menu-service/overlay-menu.service';
 
 @Component({
@@ -9,6 +9,7 @@ import { OverlayMenuService } from '../../core/services/overlay-menu-service/ove
 })
 export class Topbar {
   private overlayMenuService = inject(OverlayMenuService);
+  title = input<string>();
 
   get toggleMenu(): void {
     return this.overlayMenuService.toggleMenu();

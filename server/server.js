@@ -18,6 +18,7 @@ const __dirname = path.dirname(__filename);
 
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'collections.json');
+const ENVIRONMENTS_FILE = path.join(DATA_DIR, 'environments.json');
 
 // Create data folder if missing
 if (!fs.existsSync(DATA_DIR)) {
@@ -27,6 +28,11 @@ if (!fs.existsSync(DATA_DIR)) {
 // Create empty collections file if missing
 if (!fs.existsSync(DATA_FILE)) {
   fs.writeFileSync(DATA_FILE, '[]');
+}
+
+// Create empty environments file if missing
+if (!fs.existsSync(ENVIRONMENTS_FILE)) {
+  fs.writeFileSync(ENVIRONMENTS_FILE, '[]');
 }
 
 // ====================
@@ -60,6 +66,11 @@ app.get('/api', (req, res) => {
       health: 'GET /health',
       collections: 'GET /api/collections',
       saveCollections: 'POST /api/collections',
+      environments: 'GET /api/environments',
+      createEnvironment: 'POST /api/environments',
+      updateEnvironment: 'PUT /api/environments/:id',
+      deleteEnvironment: 'DELETE /api/environments/:id',
+      importEnvironments: 'POST /api/environments/import',
       proxy: 'POST /proxy?url={target_url}',
       parseCurl: 'POST /parse-curl',
     },
@@ -226,6 +237,290 @@ app.put('/api/requests/:requestId', (req, res) => {
 });
 
 // ====================
+// ENVIRONMENTS CRUD
+// ====================
+
+// Get all environments
+app.get('/api/environments', (req, res) => {
+  try {
+    const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+
+    if (!data.trim()) {
+      return res.json([]);
+    }
+
+    const environments = JSON.parse(data);
+    res.json(environments);
+  } catch (err) {
+    console.error('Error reading environments:', err);
+    res.status(500).json({
+      error: 'Failed to load environments',
+    });
+  }
+});
+
+// Get a single environment by ID
+app.get('/api/environments/:id', (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+    const environments = JSON.parse(data || '[]');
+
+    const environment = environments.find((env) => env.id === id);
+
+    if (!environment) {
+      return res.status(404).json({ error: 'Environment not found' });
+    }
+
+    res.json(environment);
+  } catch (err) {
+    console.error('Error reading environment:', err);
+    res.status(500).json({ error: 'Failed to load environment' });
+  }
+});
+
+// Create a new environment
+app.post('/api/environments', (req, res) => {
+  const { id, name, variables, createdAt, updatedAt } = req.body;
+
+  try {
+    const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+    const environments = JSON.parse(data || '[]');
+
+    // Check if environment with same name exists
+    const exists = environments.find((env) => env.name.toLowerCase() === name.toLowerCase());
+    if (exists) {
+      return res.status(409).json({
+        error: 'An environment with that name already exists.'
+      });
+    }
+
+    const newEnvironment = {
+      id: id || crypto.randomUUID(),
+      name: name.trim(),
+      variables: variables || [],
+      createdAt: createdAt || new Date().toISOString(),
+      updatedAt: updatedAt || new Date().toISOString(),
+    };
+
+    environments.push(newEnvironment);
+
+    fs.writeFileSync(ENVIRONMENTS_FILE, JSON.stringify(environments, null, 2));
+
+    res.status(201).json(newEnvironment);
+  } catch (err) {
+    console.error('Error creating environment:', err);
+    res.status(500).json({ error: 'Internal error creating environment' });
+  }
+});
+
+// Update an existing environment
+app.put('/api/environments/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, variables } = req.body;
+
+  try {
+    const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+    let environments = JSON.parse(data || '[]');
+
+    const environmentIndex = environments.findIndex((env) => env.id === id);
+
+    if (environmentIndex === -1) {
+      return res.status(404).json({ error: 'Environment not found' });
+    }
+
+    // Check if another environment with same name exists (excluding current)
+    const duplicateName = environments.find(
+      (env) => env.name.toLowerCase() === name.toLowerCase() && env.id !== id
+    );
+    if (duplicateName) {
+      return res.status(409).json({
+        error: 'An environment with that name already exists.'
+      });
+    }
+
+    const updatedEnvironment = {
+      ...environments[environmentIndex],
+      name: name.trim(),
+      variables: variables || [],
+      updatedAt: new Date().toISOString(),
+    };
+
+    environments[environmentIndex] = updatedEnvironment;
+
+    fs.writeFileSync(ENVIRONMENTS_FILE, JSON.stringify(environments, null, 2));
+
+    res.status(200).json(updatedEnvironment);
+  } catch (err) {
+    console.error('Error updating environment:', err);
+    res.status(500).json({ error: 'Internal error updating environment' });
+  }
+});
+
+// Delete an environment
+app.delete('/api/environments/:id', (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+    let environments = JSON.parse(data || '[]');
+
+    const environmentIndex = environments.findIndex((env) => env.id === id);
+
+    if (environmentIndex === -1) {
+      return res.status(404).json({ error: 'Environment not found' });
+    }
+
+    environments.splice(environmentIndex, 1);
+
+    fs.writeFileSync(ENVIRONMENTS_FILE, JSON.stringify(environments, null, 2));
+
+    res.status(200).json({
+      message: 'Environment deleted successfully',
+      id: id
+    });
+  } catch (err) {
+    console.error('Error deleting environment:', err);
+    res.status(500).json({ error: 'Internal error deleting environment' });
+  }
+});
+
+// Import multiple environments
+app.post('/api/environments/import', (req, res) => {
+  const { environments: importedEnvironments } = req.body;
+
+  if (!importedEnvironments || !Array.isArray(importedEnvironments)) {
+    return res.status(400).json({
+      error: 'Invalid format: expected { environments: [...] }'
+    });
+  }
+
+  try {
+    const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+    let existingEnvironments = JSON.parse(data || '[]');
+
+    // Process each imported environment
+    const processedEnvironments = importedEnvironments.map((env) => {
+      // Check if environment with same ID exists
+      const existing = existingEnvironments.find((e) => e.id === env.id);
+
+      if (existing) {
+        // Update existing
+        return {
+          ...existing,
+          ...env,
+          updatedAt: new Date().toISOString(),
+        };
+      } else {
+        // Create new
+        return {
+          id: env.id || crypto.randomUUID(),
+          name: env.name.trim(),
+          variables: env.variables || [],
+          createdAt: env.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+      }
+    });
+
+    // Merge: keep environments that weren't imported, add/update imported ones
+    const mergedEnvironments = [...existingEnvironments];
+
+    for (const processed of processedEnvironments) {
+      const index = mergedEnvironments.findIndex((e) => e.id === processed.id);
+      if (index !== -1) {
+        mergedEnvironments[index] = processed;
+      } else {
+        mergedEnvironments.push(processed);
+      }
+    }
+
+    fs.writeFileSync(ENVIRONMENTS_FILE, JSON.stringify(mergedEnvironments, null, 2));
+
+    res.status(200).json({
+      message: `Imported ${processedEnvironments.length} environments successfully`,
+      environments: processedEnvironments,
+    });
+  } catch (err) {
+    console.error('Error importing environments:', err);
+    res.status(500).json({ error: 'Internal error importing environments' });
+  }
+});
+
+// Export all environments (GET with export flag)
+app.get('/api/environments/export', (req, res) => {
+  try {
+    const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+    const environments = JSON.parse(data || '[]');
+
+    res.status(200).json({
+      exportedAt: new Date().toISOString(),
+      count: environments.length,
+      environments: environments,
+    });
+  } catch (err) {
+    console.error('Error exporting environments:', err);
+    res.status(500).json({ error: 'Internal error exporting environments' });
+  }
+});
+
+// ====================
+// Helper: Resolve environment variables in a request
+// ====================
+
+app.post('/api/environments/resolve', (req, res) => {
+  const { environmentId, text } = req.body;
+
+  if (!text) {
+    return res.status(400).json({ error: 'Missing text to resolve' });
+  }
+
+  try {
+    let result = text;
+
+    // If environmentId is provided, use that specific environment
+    if (environmentId) {
+      const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+      const environments = JSON.parse(data || '[]');
+      const environment = environments.find((env) => env.id === environmentId);
+
+      if (environment) {
+        for (const variable of environment.variables) {
+          const placeholder = `{{${variable.key}}}`;
+          result = result.replace(new RegExp(placeholder, 'g'), variable.value);
+        }
+      }
+    } else {
+      // Try to resolve using all environments (use first one that matches)
+      const data = fs.readFileSync(ENVIRONMENTS_FILE, 'utf-8');
+      const environments = JSON.parse(data || '[]');
+
+      for (const env of environments) {
+        let tempResult = text;
+        for (const variable of env.variables) {
+          const placeholder = `{{${variable.key}}}`;
+          tempResult = tempResult.replace(new RegExp(placeholder, 'g'), variable.value);
+        }
+        if (tempResult !== text) {
+          result = tempResult;
+          break;
+        }
+      }
+    }
+
+    res.json({
+      original: text,
+      resolved: result,
+      environmentId: environmentId || 'auto-detected',
+    });
+  } catch (err) {
+    console.error('Error resolving variables:', err);
+    res.status(500).json({ error: 'Internal error resolving variables' });
+  }
+});
+
+// ====================
 // Proxy Request
 // ====================
 
@@ -306,5 +601,8 @@ app.listen(PORT, () => {
   console.log('\n🚀 MemOK Proxy Server');
   console.log(`📍 Server running at http://localhost:${PORT}`);
   console.log(`📡 Health check: http://localhost:${PORT}/health`);
+  console.log(`📁 Data directory: ${DATA_DIR}`);
+  console.log(`📄 Collections file: ${DATA_FILE}`);
+  console.log(`📄 Environments file: ${ENVIRONMENTS_FILE}`);
   console.log('\n✅ Server is ready!\n');
 });

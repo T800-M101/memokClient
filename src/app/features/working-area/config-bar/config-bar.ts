@@ -23,7 +23,6 @@ export class ConfigBar {
   readonly activeRequest = this.requestsService.activeRequest;
 
   requestData = input<ApiRequest | null>();
-  change = output<Partial<ApiRequest>>();
   isCollapsed = signal(false);
   activeTab = signal<'params' | 'headers' | 'auth' | 'body'>('params');
 
@@ -460,7 +459,7 @@ jsonCharCount(): number {
     console.log('VALID PARAMS', validParams);
 
     if (Object.keys(validParams).length > 0) {
-      this.change.emit({ params: validParams });
+     // this.change.emit({ params: validParams });
       this.requestsService.updateActiveRequest({ params: validParams });
     }
   }
@@ -489,7 +488,7 @@ jsonCharCount(): number {
       hasValidHeaders = true;
     }
 
-    this.change.emit({ headers: hasValidHeaders ? validHeaders : undefined });
+    //this.change.emit({ headers: hasValidHeaders ? validHeaders : undefined });
     this.requestsService.updateActiveRequest({ headers: validHeaders });
   }
 

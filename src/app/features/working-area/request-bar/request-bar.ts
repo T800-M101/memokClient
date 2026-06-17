@@ -38,19 +38,12 @@ export class RequestBar {
     // Señales del servicio
   isLoading = this.requestsService.isLoading;
 
-  // Estado del modal
+ 
 
-  isEditing = output<boolean>();
 
-  // Estado local del dropdown
-  selectedIndex = signal<number>(0);
   isDropdownOpen = false;
   isCopied = false;
 
-  // Input/Output (por si se necesitan)
-  requestData = input<ApiRequest>();
-  change = output<Partial<ApiRequest>>();
-  isModalOpen = output<boolean>();
 
   ngOnInit() {}
 

@@ -10,6 +10,7 @@
   </div>
 
   <ul class="overlay-nav-menu">
+    <!-- Import cURL -->
     <li (click)="toggleImportDrawer()">
       <i class="fas fa-cloud-upload-alt"></i>
       <span>Import cURL</span>
@@ -26,9 +27,12 @@
         </div>
 
         <div class="drawer-body">
-          <textarea [(ngModel)]="curlCommand"
+          <textarea
+            [(ngModel)]="curlCommand"
             placeholder="Paste your cURL command here...&#10;&#10;Example:&#10;curl -X GET &quot;https://api.example.com/users&quot; -H &quot;Authorization: Bearer token&quot;"
-            class="drawer-textarea" rows="5"></textarea>
+            class="drawer-textarea"
+            rows="5">
+          </textarea>
         </div>
 
         <div class="drawer-footer">
@@ -41,15 +45,25 @@
       </div>
     </div>
 
+    <!-- Environments -->
     <li (click)="toggleEnvironmentsDrawer()">
       <i class="fas fa-globe"></i>
       <span>Environments</span>
     </li>
-    <div class="drawer drawer-wide" [class.open]="isEnvironmentsDrawerOpen()"
-      [class.closing]="isEnvironmentsDrawerClosing()">
+
+    <!-- Environments Drawer -->
+    <div class="drawer drawer-wide" [class.open]="isEnvironmentsDrawerOpen()" [class.closing]="isEnvironmentsDrawerClosing()">
       <div class="drawer-content">
         <div class="drawer-header">
-          <h4>Environment Variables</h4>
+          <h4>
+            @if (isEditingEnvironment()) {
+              <i class="fas fa-edit"></i>
+              Edit Environment
+            } @else {
+              <i class="fas fa-plus-circle"></i>
+              New Environment
+            }
+          </h4>
           <button class="drawer-close" (click)="closeEnvironmentsDrawer()">
             <i class="fas fa-times"></i>
           </button>
@@ -58,12 +72,27 @@
         <div class="drawer-body">
           <!-- Environment Name Input -->
           <div class="env-name-field">
-            <input type="text" [(ngModel)]="environmentName"
-              placeholder="Environment name (e.g., Development, Production)" class="drawer-input env-name-input" />
+            <label class="env-label">
+              <i class="fas fa-tag"></i>
+              Environment Name
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="environmentName"
+              placeholder="e.g., Development, Production, Staging"
+              class="drawer-input env-name-input" />
           </div>
 
           <!-- Variables Table -->
           <div class="variables-table-container">
+            <div class="table-header">
+              <label class="env-label">
+                <i class="fas fa-list"></i>
+                Variables
+              </label>
+              <span class="vars-count">{{ environmentVariables().length }} variables</span>
+            </div>
+
             <table class="variables-table">
               <thead>
                 <tr>
@@ -73,13 +102,19 @@
                 </tr>
               </thead>
               <tbody>
-                @for (variable of variables(); track $index) {
+                @for (variable of environmentVariables(); track $index) {
                 <tr>
                   <td>
-                    <input [(ngModel)]="variable.key" placeholder="protocol" class="table-input" />
+                    <input
+                      [(ngModel)]="variable.key"
+                      placeholder="e.g., protocol"
+                      class="table-input" />
                   </td>
                   <td>
-                    <input [(ngModel)]="variable.value" placeholder="https" class="table-input" />
+                    <input
+                      [(ngModel)]="variable.value"
+                      placeholder="e.g., https"
+                      class="table-input" />
                   </td>
                   <td class="action-cell">
                     <button class="remove-variable-btn" (click)="removeVariable($index)">
@@ -97,88 +132,126 @@
             <i class="fas fa-plus"></i>
             Add variable
           </button>
+
+          <!-- Usage Hint -->
+          <div class="usage-hint">
+            <i class="fas fa-info-circle"></i>
+            Use variables in requests with: <code>{{'{{variable_name}}'}}</code>
+          </div>
         </div>
 
         <div class="drawer-footer">
           <button class="drawer-btn cancel" (click)="closeEnvironmentsDrawer()">Cancel</button>
-          <button class="drawer-btn save" (click)="saveEnvironments()">Save</button>
+          <button class="drawer-btn save" (click)="saveEnvironments()">
+            <i class="fas fa-save"></i>
+            @if (isEditingEnvironment()) {
+              Update Environment
+            } @else {
+              Create Environment
+            }
+          </button>
         </div>
       </div>
     </div>
   </ul>
+
+  <!-- Saved Environments List -->
   <div class="saved-environments-list">
     @if (environments().length > 0) {
-    <div class="env-list-title">
-      <label>Environments</label>
-    </div>
-    <div class="env-items-list">
-      @for (env of environments(); track env.id) {
-      <div class="env-item-wrapper">
-        <!-- Main Item  -->
-        <div class="env-list-item" [class.active]="selectedEnvId() === env.id">
-          <div class="env-item-content" (click)="toggleEnvironmentExpand(env.id)">
-            <i class="fas fa-chevron-right" [class.rotated]="expandedEnvId() === env.id"></i>
-            <i [class]="expandedEnvId() === env.id ? 'fas fa-folder-open' : 'fas fa-folder'"></i>
-            <span class="env-list-name">{{ env.name }}</span>
-            <span class="env-list-badge">{{ env.variables.length }} vars</span>
-          </div>
-        </div>
-        <!-- Expanded Panel with variables -->
-        @if (expandedEnvId() === env.id) {
-        <div class="env-variables-panel">
-          <div class="panel-header">
-            <span class="panel-title">Variables</span>
-            <button class="add-var-btn" (click)="addVariableToEnvironment(env.id)">
-              <i class="fas fa-plus"></i>
-              Add Variable
-            </button>
-          </div>
+      <div class="env-list-title">
+        <label>Environments</label>
+        <span class="env-count">{{ environments().length }}</span>
+      </div>
 
-          <!-- Variables List -->
-          <div class="variables-list">
-            @for (variable of env.variables; track $index) {
-            <div class="variable-row">
-              <input
-                    [(ngModel)]="variable.key"
-                    placeholder="variable name"
-                    class="var-key-input"
-                    (change)="updateVariable(env.id, $index, variable.key, variable.value)" />
-              <span class="var-separator">=</span>
-              <input
-                    [(ngModel)]="variable.value"
-                    placeholder="value"
-                    class="var-value-input"
-                    (change)="updateVariable(env.id, $index, variable.key, variable.value)" />
-              <button
-                class="delete-var-btn"
-                (click)="deleteVariableFromEnvironment(env.id, $index)">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-            }
-            @if (env.variables.length === 0) {
-            <div class="no-variables">
-              <i class="fas fa-info-circle"></i>
-              No variables yet. Click "Add Variable" to create one.
-            </div>
-            }
-          </div>
+      <div class="env-items-list">
+        @for (env of environments(); track env.id) {
+          <div class="env-item-wrapper">
+            <!-- Main Item -->
+            <div class="env-list-item" [class.active]="selectedEnvId() === env.id">
+              <div class="env-item-content" (click)="toggleEnvironmentExpand(env.id)">
+                <i class="fas fa-chevron-right" [class.rotated]="expandedEnvId() === env.id"></i>
+                <i [class]="expandedEnvId() === env.id ? 'fas fa-folder-open' : 'fas fa-folder'"></i>
+                <span class="env-list-name">{{ env.name }}</span>
+                <span class="env-list-badge">{{ env.variables.length }} vars</span>
+              </div>
 
-          <div class="panel-footer">
-            <div class="usage-hint">
-              <i class="fas fa-code"></i>
-              Use in requests: <code>{{'{{variable_name}}'}}</code>
+              <!-- Actions -->
+              <div class="env-item-actions">
+                <button class="env-action-btn edit" (click)="editEnvironment(env.id)" title="Edit environment">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="env-action-btn delete" (click)="deleteEnvironment(env.id)" title="Delete environment">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
             </div>
-            <button class="close-panel-btn" (click)="closeEnvironmentExpand()">
-              <i class="fas fa-times"></i>
-              Close
-            </button>
+
+            <!-- Expanded Panel with variables -->
+            @if (expandedEnvId() === env.id) {
+              <div class="env-variables-panel">
+                <div class="panel-header">
+                  <span class="panel-title">
+                    <i class="fas fa-list-ul"></i>
+                    Variables
+                  </span>
+                  <button class="add-var-btn" (click)="addVariableToEnvironment(env.id)">
+                    <i class="fas fa-plus"></i>
+                    Add Variable
+                  </button>
+                </div>
+
+                <!-- Variables List -->
+                <div class="variables-list">
+                  @for (variable of env.variables; track $index) {
+                    <div class="variable-row">
+                      <input
+                        [(ngModel)]="variable.key"
+                        placeholder="variable name"
+                        class="var-key-input"
+                        (change)="updateVariable(env.id, $index, variable.key, variable.value)" />
+                      <span class="var-separator">=</span>
+                      <input
+                        [(ngModel)]="variable.value"
+                        placeholder="value"
+                        class="var-value-input"
+                        (change)="updateVariable(env.id, $index, variable.key, variable.value)" />
+                      <button
+                        class="delete-var-btn"
+                        (click)="deleteVariableFromEnvironment(env.id, $index)">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  }
+
+                  @if (env.variables.length === 0) {
+                    <div class="no-variables">
+                      <i class="fas fa-info-circle"></i>
+                      No variables yet. Click "Add Variable" to create one.
+                    </div>
+                  }
+                </div>
+
+                <div class="panel-footer">
+                  <div class="usage-hint">
+                    <i class="fas fa-code"></i>
+                    Use in requests: <code>{{'{{variable_name}}'}}</code>
+                  </div>
+                  <button class="close-panel-btn" (click)="closeEnvironmentExpand()">
+                    <i class="fas fa-times"></i>
+                    Close
+                  </button>
+                </div>
+              </div>
+            }
           </div>
-        </div>
         }
       </div>
-      }
-    </div>
+    } @else {
+      <div class="empty-environments">
+        <i class="fas fa-globe"></i>
+        <p>No environments yet</p>
+        <span>Create your first environment using the button above</span>
+      </div>
     }
   </div>
 </div>
