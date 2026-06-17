@@ -342,3 +342,188 @@
   color: var(--text-muted, #7f8c8d);
   font-style: italic;
 }
+
+/* ==========================================================================
+   COLLECTION HEADER WITH ACTIONS
+   ========================================================================== */
+
+.collection-header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.5rem;
+
+  &:hover .collection-actions {
+    opacity: 1;
+  }
+}
+
+.collection-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+  }
+
+  .fa-chevron-right {
+    font-size: 0.6rem;
+    transition: transform 0.2s ease;
+    color: var(--text-muted, #8e8ea8);
+
+    &.expanded {
+      transform: rotate(90deg);
+    }
+  }
+
+  .collection-icon {
+    color: #f39c12;
+    font-size: 0.85rem;
+  }
+
+  .collection-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-sidebar, #e0e0e0);
+  }
+}
+
+/* Collection Actions */
+.collection-actions {
+  display: flex;
+  gap: 0.2rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.collection-action-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #8e8ea8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 0.6rem;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.delete-collection:hover {
+    background: rgba(220, 53, 69, 0.15);
+    color: #ff6b6b;
+  }
+}
+
+/* ==========================================================================
+   REQUEST ITEM WITH DELETE
+   ========================================================================== */
+
+.request-item-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.3rem;
+  position: relative;
+
+  &:hover .request-delete-btn {
+    opacity: 1;
+  }
+}
+
+.request-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-sidebar, #e0e0e0);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex: 1;
+  text-align: left;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .method {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .request-name {
+    font-size: 0.7rem;
+    color: var(--text-sidebar, #e0e0e0);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Method colors */
+  &.get .method { background: rgba(0, 188, 212, 0.15); color: #00bcd4; }
+  &.post .method { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
+  &.put .method { background: rgba(255, 152, 0, 0.15); color: #ff9800; }
+  &.delete .method { background: rgba(244, 67, 54, 0.15); color: #f44336; }
+  &.patch .method { background: rgba(156, 39, 176, 0.15); color: #9c27b0; }
+}
+
+.request-delete-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #8e8ea8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.5rem;
+  }
+
+  &:hover {
+    background: rgba(220, 53, 69, 0.15);
+    color: #ff6b6b;
+  }
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .request-delete-btn {
+    color: var(--text-muted-dark, #6c6c8a);
+  }
+
+  .collection-action-btn {
+    color: var(--text-muted-dark, #6c6c8a);
+  }
+}

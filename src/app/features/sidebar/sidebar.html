@@ -15,28 +15,50 @@
     <div class="collection-item">
 
       <!-- Collection Header (clickable to expand/collapse) -->
-      <div
-        class="collection-header"
-        (click)="toggleCollection(collection.collectionId)">
-        <i class="fas fa-chevron-right" [class.expanded]="collection.isExpanded"></i>
-        <i [class]="getFolderIcon(collection.isExpanded ?? false)" class="collection-icon"></i>
-        <span class="collection-name">{{ collection.name }}</span>
+      <div class="collection-header-wrapper">
+        <div
+          class="collection-header"
+          (click)="toggleCollection(collection.collectionId)">
+          <i class="fas fa-chevron-right" [class.expanded]="collection.isExpanded"></i>
+          <i [class]="getFolderIcon(collection.isExpanded ?? false)" class="collection-icon"></i>
+          <span class="collection-name">{{ collection.name }}</span>
+        </div>
+
+        <!-- Collection Actions -->
+        <div class="collection-actions">
+          <button
+            class="collection-action-btn delete-collection"
+            (click)="deleteCollection(collection.collectionId, $event)"
+            title="Delete collection">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Request List (collapsible) -->
       <div class="request-list" [class.collapsed]="!collection.isExpanded">
         @for (request of collection.requests; track request.requestId) {
-        <button
-          class="request-item"
-          [class.get]="request.method === 'GET'"
-          [class.post]="request.method === 'POST'"
-          [class.put]="request.method === 'PUT'"
-          [class.delete]="request.method === 'DELETE'"
-          [class.patch]="request.method === 'PATCH'"
-          (click)="selectRequest(collection.collectionId, request)">
-          <span class="method">{{ request.method }}</span>
-          <span class="request-name">{{ request.name }}</span>
-        </button>
+        <div class="request-item-wrapper">
+          <button
+            class="request-item"
+            [class.get]="request.method === 'GET'"
+            [class.post]="request.method === 'POST'"
+            [class.put]="request.method === 'PUT'"
+            [class.delete]="request.method === 'DELETE'"
+            [class.patch]="request.method === 'PATCH'"
+            (click)="selectRequest(collection.collectionId, request)">
+            <span class="method">{{ request.method }}</span>
+            <span class="request-name">{{ request.name }}</span>
+          </button>
+
+          <!-- Request Delete Button -->
+          <button
+            class="request-delete-btn"
+            (click)="deleteRequest(collection.collectionId, request.requestId, $event)"
+            title="Delete request">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
         }
 
         @empty {

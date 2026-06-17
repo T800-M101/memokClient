@@ -593,6 +593,68 @@ app.post('/api/parse-curl', async (req, res) => {
   }
 });
 
+// Delete a collection
+app.delete('/api/collections/:collectionId', (req, res) => {
+  const { collectionId } = req.params;
+
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf-8');
+    let collections = JSON.parse(data || '[]');
+
+    const collectionIndex = collections.findIndex(c => c.collectionId === collectionId);
+
+    if (collectionIndex === -1) {
+      return res.status(404).json({ error: 'Collection not found' });
+    }
+
+    collections.splice(collectionIndex, 1);
+
+    fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
+
+    res.status(200).json({
+      message: 'Collection deleted successfully',
+      collectionId: collectionId
+    });
+  } catch (err) {
+    console.error('Error deleting collection:', err);
+    res.status(500).json({ error: 'Internal error deleting collection' });
+  }
+});
+
+// Delete a request from a collection
+app.delete('/api/collections/:collectionId/requests/:requestId', (req, res) => {
+  const { collectionId, requestId } = req.params;
+
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf-8');
+    let collections = JSON.parse(data || '[]');
+
+    const collection = collections.find(c => c.collectionId === collectionId);
+
+    if (!collection) {
+      return res.status(404).json({ error: 'Collection not found' });
+    }
+
+    const requestIndex = collection.requests.findIndex(r => r.requestId === requestId);
+
+    if (requestIndex === -1) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    collection.requests.splice(requestIndex, 1);
+
+    fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
+
+    res.status(200).json({
+      message: 'Request deleted successfully',
+      requestId: requestId
+    });
+  } catch (err) {
+    console.error('Error deleting request:', err);
+    res.status(500).json({ error: 'Internal error deleting request' });
+  }
+});
+
 // ====================
 // Start Server
 // ====================

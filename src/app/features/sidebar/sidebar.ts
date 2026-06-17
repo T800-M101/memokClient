@@ -5,6 +5,7 @@ import { ModalService } from '../../core/services/modal-service/modal-service';
 import { RequestsService } from '../../core/services/requests-service/requests-service';
 import { ApiRequest } from '../../core/interfaces/api-request.interface';
 import { NotificationService } from '../../core/services/notifications/notification-service';
+import { Collection } from '../../core/interfaces/collection.interface';
 
 @Component({
   selector: 'app-sidebar',
@@ -26,6 +27,10 @@ export class Sidebar {
 
   newCollectionName = '';
   newRequestName = '';
+
+  // ==========================================================================
+  // DRAWER MANAGEMENT
+  // ==========================================================================
 
   toggleDrawer(): void {
     if (this.isDrawerOpen()) {
@@ -77,11 +82,19 @@ export class Sidebar {
     this.newRequestName = '';
   }
 
+  // ==========================================================================
+  // SEARCH
+  // ==========================================================================
+
   search(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchTerm.set(value);
     this.onSearch.emit(value);
   }
+
+  // ==========================================================================
+  // COLLECTION MANAGEMENT
+  // ==========================================================================
 
   getFolderIcon(isExpanded: boolean): string {
     return isExpanded ? 'fas fa-folder-open' : 'fas fa-folder';
@@ -95,7 +108,7 @@ export class Sidebar {
         .put(`/api/collections/${collectionId}`, { isExpanded: collection.isExpanded })
         .subscribe({
           next: () => {
-            // Optional: silent success - no notification needed for this action
+            // Silent success
           },
           error: (err) => {
             console.error('Error saving collection state:', err);
@@ -105,9 +118,78 @@ export class Sidebar {
     }
   }
 
+  /**
+   * Delete a collection - No confirmation
+   */
+  deleteCollection(collectionId: string, event: Event): void {
+    event.stopPropagation(); // Prevent triggering the collection toggle
 
+    const collection = this.collections().find((c) => c.collectionId === collectionId);
+    if (!collection) {
+      this.notificationService.error('Collection not found');
+      return;
+    }
+
+    // Delete from backend
+    this.http.delete(`/api/collections/${collectionId}`).subscribe({
+      next: () => {
+        // Close any open requests from this collection
+        const requestIds = collection.requests.map((req) => req.requestId);
+        for (const reqId of requestIds) {
+          this.requestsService.closeRequest(reqId);
+        }
+
+        // Refresh collections
+        this.requestsService.getCollections();
+        this.notificationService.success(`Collection "${collection.name}" deleted`);
+      },
+      error: (err) => {
+        console.error('Error deleting collection:', err);
+        this.notificationService.error('Failed to delete collection. Please try again.');
+      },
+    });
+  }
+
+  // ==========================================================================
+  // REQUEST MANAGEMENT
+  // ==========================================================================
 
   selectRequest(collectionId: string, request: ApiRequest): void {
     this.requestsService.setActiveRequest(collectionId, request);
+  }
+
+  /**
+   * Delete a request from a collection - No confirmation
+   */
+  deleteRequest(collectionId: string, requestId: string, event: Event): void {
+    event.stopPropagation(); // Prevent triggering the request selection
+
+    const collection = this.collections().find((c) => c.collectionId === collectionId);
+    if (!collection) {
+      this.notificationService.error('Collection not found');
+      return;
+    }
+
+    const request = collection.requests.find((req) => req.requestId === requestId);
+    if (!request) {
+      this.notificationService.error('Request not found');
+      return;
+    }
+
+    // Delete from backend
+    this.http.delete(`/api/collections/${collectionId}/requests/${requestId}`).subscribe({
+      next: () => {
+        // Close the request if it's open
+        this.requestsService.closeRequest(requestId);
+
+        // Refresh collections
+        this.requestsService.getCollections();
+        this.notificationService.success(`Request "${request.name}" deleted`);
+      },
+      error: (err) => {
+        console.error('Error deleting request:', err);
+        this.notificationService.error('Failed to delete request. Please try again.');
+      },
+    });
   }
 }
