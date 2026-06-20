@@ -196,20 +196,11 @@ export class RequestBar {
       body: requestBody,
     };
 
-    console.log('Sending request with resolved variables:', {
-      originalUrl: current.url,
-      resolvedUrl: finalUrl,
-      method: requestPayload.method,
-      headers: requestPayload.headers,
-      body: requestPayload.body,
-    });
-
     try {
       const response = await lastValueFrom(
         this.requestsService.sendRequest(finalUrl, requestPayload),
       );
 
-      console.log('Response received:', response);
       this.requestsService.setResponse(response);
       this.notificationService.success('Request completed successfully!');
     } catch (error: any) {

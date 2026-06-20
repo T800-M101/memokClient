@@ -138,8 +138,6 @@ export class OverlayMenu implements OnInit {
   async importCurl(): Promise<void> {
     if (!this.curlCommand.trim()) return;
 
-    console.log('Importing cURL:', this.curlCommand);
-
     try {
       const parsedRequest = await this.parseCurlCommand(this.curlCommand);
       const newRequest: ApiRequest = {
@@ -335,7 +333,6 @@ export class OverlayMenu implements OnInit {
         variables
       ).subscribe({
         next: (updated) => {
-          console.log('Environment updated:', updated);
           this.closeEnvironmentsDrawer();
         },
         error: (error) => {
@@ -343,10 +340,9 @@ export class OverlayMenu implements OnInit {
         }
       });
     } else {
-      // ✅ Crear nuevo environment usando el servicio
+      // Crear nuevo environment usando el servicio
       this.environmentService.createEnvironment(name, variables).subscribe({
         next: (created) => {
-          console.log('Environment created:', created);
           this.closeEnvironmentsDrawer();
         },
         error: (error) => {
@@ -393,7 +389,6 @@ export class OverlayMenu implements OnInit {
 
   selectEnvironment(id: string): void {
     this.environmentService.selectEnvironment(id);
-    console.log('Selected environment:', id);
   }
 
   toggleEnvironmentExpand(envId: string): void {

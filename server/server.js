@@ -193,8 +193,6 @@ app.put('/api/requests/:requestId', (req, res) => {
   const { requestId } = req.params;
   const updateData = req.body;
 
-  console.log(`Updating request ${requestId}:`, updateData);
-
   try {
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
     const collections = JSON.parse(data || '[]');
@@ -224,7 +222,6 @@ app.put('/api/requests/:requestId', (req, res) => {
     }
 
     fs.writeFileSync(DATA_FILE, JSON.stringify(collections, null, 2));
-    console.log(`Request ${requestId} updated successfully`);
 
     res.status(200).json({
       message: 'Request updated successfully',
@@ -534,8 +531,6 @@ app.post('/api/proxy', async (req, res) => {
       error: 'Missing URL parameter',
     });
   }
-
-  console.log(`[${new Date().toISOString()}] ${req.body.method || 'GET'} ${targetUrl}`);
 
   try {
     const response = await axios({

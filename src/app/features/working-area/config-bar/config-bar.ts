@@ -66,7 +66,6 @@ export class ConfigBar {
     });
 
     this.paramsArray.valueChanges.subscribe(() => {
-      console.log('ENNLOS PARMAS', this.isUpdating);
       if (!this.isUpdating) {
         this.emitParamsChange();
       }
@@ -102,9 +101,6 @@ export class ConfigBar {
     this.paramsArray.clear({ emitEvent: false });
 
     const params = request.params ?? {};
-
-    console.log('Loading params:', params);
-
     const paramEntries = Object.entries(params);
 
     if (paramEntries.length > 0) {
@@ -445,7 +441,6 @@ jsonCharCount(): number {
     const validParams: Record<string, string> = {};
 
     const paramsRawValue = this.paramsArray.getRawValue();
-    console.log('Params raw value:', paramsRawValue);
 
     for (const item of paramsRawValue) {
       const key = item?.key?.trim();
@@ -456,10 +451,7 @@ jsonCharCount(): number {
       }
     }
 
-    console.log('VALID PARAMS', validParams);
-
     if (Object.keys(validParams).length > 0) {
-     // this.change.emit({ params: validParams });
       this.requestsService.updateActiveRequest({ params: validParams });
     }
   }

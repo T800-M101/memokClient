@@ -293,7 +293,7 @@ export class RequestsService {
   // PROXY REQUEST (HTTP Client)
   // ==========================================================================
 
-  /**
+/**
  * Sends an HTTP request through the backend proxy
  * @param targetUrl - The actual URL to call
  * @param requestData - The request payload (method, headers, body, etc.)
@@ -324,11 +324,6 @@ sendRequest(
     headers: requestData.headers || {},
     body: bodyToSend || null
   };
-
-  console.log('Sending to proxy:', {
-    url: fullUrl,
-    payload: proxyPayload
-  });
 
   return this.http.post(fullUrl, proxyPayload).pipe(
     tap((response) => {
@@ -396,14 +391,14 @@ createLocalRequest(collectionId?: string): void {
 }
 
 /**
- * Guarda una nueva request directamente en una colección
- * Si la colección no existe, la crea con el nombre proporcionado
- */
+* Saves a new request directly into a collection
+* If the collection doesn't exist, it creates it with the provided name
+*/
 addRequestToCollection(collectionId: string, request: ApiRequest, newCollectionName?: string): Observable<ApiRequest> {
-  // Buscar la colección actual
+  // Search the current collection
   let collection = this._collections().find(c => c.collectionId === collectionId);
 
-  // Crear la request con el collectionId asignado
+  // Create the request with the assigned collectionId
   const requestWithCollection = {
     ...request,
     collectionId: collectionId,
@@ -411,41 +406,40 @@ addRequestToCollection(collectionId: string, request: ApiRequest, newCollectionN
     requestId: request.requestId.startsWith('temp-') ? crypto.randomUUID() : request.requestId
   };
 
-  // Si no existe la colección, crearla primero
+  // If the collection does not exist, create it first.
   if (!collection) {
     const collectionName = newCollectionName || `Collection ${collectionId.substring(0, 8)}`;
-    console.log(`Creating new collection: ${collectionName} with id ${collectionId}`);
 
     const newCollection: Collection = {
       collectionId: collectionId,
-      name: collectionName, // Usar el nombre proporcionado
+      name: collectionName,
       icon: 'fas fa-folder',
       requests: [requestWithCollection],
       isExpanded: true
     };
 
-    // Crear la colección en el backend
+    // Create the collection in the backend
     const createUrl = this.getEndpoint('collections');
 
     return this.http.post<Collection>(createUrl, newCollection).pipe(
       map((savedCollection) => {
-        // Actualizar colecciones en memoria
+        // Update collections in memory
         this._collections.update(collections => [...collections, savedCollection]);
 
-        // Actualizar openRequests
+        // Update openRequests
         this._openRequests.update(requests =>
           requests.map(req =>
             req.requestId === request.requestId ? requestWithCollection : req
           )
         );
 
-        // Actualizar activeRequest si es necesario
+        // Update activeRequest if necessary
         if (this._activeRequest()?.requestId === request.requestId) {
           this._activeRequest.set(requestWithCollection);
           this._activeRequestId.set(requestWithCollection.requestId);
         }
 
-        this.getCollections(); // Refrescar
+        this.getCollections(); // Refresh
         return requestWithCollection;
       }),
       catchError((error) => {
@@ -455,7 +449,7 @@ addRequestToCollection(collectionId: string, request: ApiRequest, newCollectionN
     );
   }
 
-  // Si la colección existe, agregar la request
+  //
   const updatedCollection = {
     ...collection,
     requests: [...collection.requests, requestWithCollection]
@@ -471,21 +465,21 @@ addRequestToCollection(collectionId: string, request: ApiRequest, newCollectionN
         throw new Error('Request not found in saved collection');
       }
 
-      // Actualizar la colección en memoria
+      // If the collection exists, add the request
       this._collections.update(collections =>
         collections.map(col =>
           col.collectionId === collectionId ? savedCollection : col
         )
       );
 
-      // Actualizar openRequests
+      // Update openRequests
       this._openRequests.update(requests =>
         requests.map(req =>
           req.requestId === request.requestId ? savedRequest : req
         )
       );
 
-      // Actualizar activeRequest
+      // Update activeRequest
       if (this._activeRequest()?.requestId === request.requestId) {
         this._activeRequest.set(savedRequest);
         this._activeRequestId.set(savedRequest.requestId);
@@ -504,19 +498,19 @@ addRequestToCollection(collectionId: string, request: ApiRequest, newCollectionN
 
 
 /**
- * Mueve una request entre colecciones - Versión simplificada
+ * Move a request between collections
  */
 moveRequest(request: ApiRequest, fromCollectionId: string, toCollectionId: string): Observable<any> {
-  // Actualizar la request con el nuevo collectionId
+  // Update the request with the new collectionId
   const updatedRequest = {
     ...request,
     collectionId: toCollectionId
   };
 
-  // Actualizar la request en el backend
+  // Update the request in the backend
   return this.updateRequest(request.requestId, updatedRequest).pipe(
     tap(() => {
-      // Refrescar colecciones
+      // Refresh collections
       this.getCollections();
     })
   );

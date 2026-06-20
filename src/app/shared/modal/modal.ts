@@ -63,7 +63,6 @@ export class Modal {
       .addRequestToCollection(collectionId, requestToSave, this.modalService.newCollectionName())
       .subscribe({
         next: (savedRequest) => {
-          console.log('Request saved successfully:', savedRequest);
           this.notificationService.show('Request saved successfully');
 
           if (this.requestsService.activeRequest()?.requestId === currentRequest.requestId) {
@@ -96,7 +95,6 @@ export class Modal {
 
     this.requestsService.updateRequest(currentRequest.requestId, updatedRequest).subscribe({
       next: () => {
-        console.log('Request updated successfully');
         this.notificationService.show('Request updated successfully');
 
         this.closeModal();
@@ -115,7 +113,6 @@ export class Modal {
   ): void {
     this.requestsService.moveRequest(request, fromCollectionId, toCollectionId).subscribe({
       next: () => {
-        console.log('Request moved successfully');
         this.notificationService.show('Request moved successfully');
         this.closeModal();
       },
